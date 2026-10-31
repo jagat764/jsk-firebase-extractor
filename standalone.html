@@ -277,6 +277,7 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
           <p class="mt-3">Some apps — such as <span class="font-semibold text-slate-300">VANTAGE</span> share links — wrap the same details as Base64 over an XOR-encoded JSON object instead:</p>
           <pre class="code-block mt-2 whitespace-pre-wrap break-all">base64url( XOR( {"u":"FIREBASE_URL","k":"CREDENTIAL","l":"LABEL","e":EXPIRY_MS} ) )</pre>
           <p class="mt-2">Those links are recognised automatically as a <span class="font-semibold text-slate-300">VANTAGE share link</span> and yield the same endpoint, credential, label and expiry fields. <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">"e":0</code> means the link never expires.</p>
+          <p class="mt-2">A merged <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?m=</code> link packs several connections into one Base64 JSON array of <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">{url, key}</code> objects. Every endpoint is listed and included in bulk exports.</p>
           <p class="mt-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] p-3 text-emerald-200">
             <strong class="font-bold">Privacy:</strong> everything runs in your browser. The tool never connects to a Firebase database, never tests credentials, and never uploads pasted data.
           </p>
@@ -340,6 +341,7 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     query: 'Query-string payload',
     'pipe-payload': 'Pipe-delimited payload',
     'vantage-share': 'VANTAGE share link',
+    'merged-share': 'VANTAGE merged connections',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -516,6 +518,69 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     var out = new Uint8Array(bytes.length);
     for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key.charCodeAt(i % key.length);
     return out;
+  }
+
+  // Format D — VANTAGE merged connections (?m=):
+  //   base64url( encodeURIComponent( JSON [ {url,key}, ... ] ) )
+  // "Watch all" links carry several databases in one parameter.
+  function extractMFromUrl(value) {
+    var raw = String(value == null ? '' : value);
+    try {
+      var u = new URL(raw);
+      var fromUrl = u.searchParams.get('m');
+      if (fromUrl) return decodeSValue(fromUrl);
+    } catch (e) { /* not an absolute URL */ }
+    var m = raw.match(/[?&#]m=([^&#\s"']+)/i) || raw.match(/^m=([^&#\s"']+)/i);
+    return m && m[1] ? decodeSValue(m[1]) : null;
+  }
+
+  function normalizeMergedItems(list) {
+    var items = [];
+    var seen = Object.create(null);
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i];
+      if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+      var url = String(it.url != null ? it.url : (it.u != null ? it.u : (it.databaseURL != null ? it.databaseURL : ''))).trim().replace(/\/+$/, '');
+      if (!/^https?:\/\//i.test(url)) continue;
+      var key = String(it.key != null ? it.key : (it.k != null ? it.k : (it.apiKey != null ? it.apiKey : '')));
+      var id = url + '\u0000' + key;
+      if (seen[id]) continue;
+      seen[id] = true;
+      items.push({ url: url, key: key });
+    }
+    return items;
+  }
+
+  function decodeMergedShare(value) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return null;
+    if (/^https?:/i.test(raw)) {
+      raw = extractMFromUrl(raw);
+      if (!raw) return null;
+    } else {
+      raw = raw.replace(/^m\s*=\s*/i, '');
+      try { raw = decodeURIComponent(raw); } catch (e) { /* keep raw */ }
+    }
+    var b64 = looseBase64(raw);
+    if (!b64) return null;
+    var bytes = base64ToBytes(b64);
+    if (!bytes || bytes.length < 8) return null;
+    var text = bytesToUtf8(bytes);
+    if (!isPrintableText(text)) return null;
+    var jsonText = text;
+    if (/%[0-9A-Fa-f]{2}/.test(text)) {
+      try { jsonText = decodeURIComponent(text); } catch (e) { return null; }
+    }
+    var list;
+    try { list = JSON.parse(jsonText); } catch (e) { return null; }
+    if (!Array.isArray(list) || !list.length) return null;
+    var items = normalizeMergedItems(list);
+    if (!items.length) return null;
+    return {
+      items: items,
+      text: jsonText,
+      payload: JSON.stringify(items.map(function (x) { return { databaseURL: x.url, apiKey: x.key }; }))
+    };
   }
 
   function decodeVantageShare(value) {
@@ -761,6 +826,16 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     return false;
   }
 
+  // Array items shaped like { url, key } (merged connections, JSON exports)
+  // are summarised instead of dumped as raw JSON.
+  function summarizeConnectionObject(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    var url = String(value.url != null ? value.url : (value.u != null ? value.u : (value.databaseURL != null ? value.databaseURL : ''))).trim();
+    if (!/^https?:\/\//i.test(url)) return null;
+    var key = String(value.key != null ? value.key : (value.k != null ? value.k : (value.apiKey != null ? value.apiKey : '')));
+    return { text: key ? url + ' | ' + key : url, key: key, hasKey: !!key };
+  }
+
   function splitPayloadSegments(payload) {
     var text = String(payload == null ? '' : payload).trim();
     if (!text) return [];
@@ -779,19 +854,25 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
       try {
         var obj = JSON.parse(text);
         if (obj && typeof obj === 'object') {
-          var entries = Array.isArray(obj)
-            ? obj.map(function (v, i) { return ['item' + (i + 1), v]; })
+          var isArrayPayload = Array.isArray(obj);
+          var entries = isArrayPayload
+            ? obj.map(function (v, i) { return ['item ' + (i + 1), v]; })
             : Object.keys(obj).map(function (k) { return [k, obj[k]]; });
           return entries.map(function (entry, i) {
             var k = entry[0];
-            var v = typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1] == null ? '' : entry[1]);
+            // Connection objects look better as "url | key" than as raw JSON.
+            var summary = isArrayPayload ? summarizeConnectionObject(entry[1]) : null;
+            var v = summary
+              ? summary.text
+              : (typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1] == null ? '' : entry[1]));
             var c = classifySegment(v, i, false);
             return {
               index: i,
               label: humanizeKey(k) || c.label,
               value: v,
               kind: c.kind,
-              sensitive: c.sensitive || /key|secret|token|auth|pass/i.test(k)
+              credential: summary && summary.key ? summary.key : '',
+              sensitive: c.sensitive || !!(summary && summary.hasKey) || /key|secret|token|auth|pass/i.test(k)
             };
           });
         }
@@ -827,11 +908,23 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
       return (s.kind === 'credential' || s.kind === 'apiKey' || s.sensitive) && s.value;
     });
     if (seg) {
+      var segValue = seg.credential || seg.value;
       return {
-        value: seg.value,
-        masked: maskSecret(seg.value),
+        value: segValue,
+        masked: maskSecret(segValue),
         type: seg.kind === 'apiKey' ? 'Firebase Web API key' : 'Credential / database secret',
         source: 'field ' + (seg.index + 1)
+      };
+    }
+    // JSON payloads (including merged-connection arrays) keep their secrets in
+    // named fields, so look for those before falling back to query params.
+    var jsonField = String(text || '').match(/"(?:apiKey|api_key|key|credential|secret)"\s*:\s*"([^"]{3,})"/i);
+    if (jsonField) {
+      return {
+        value: jsonField[1],
+        masked: maskSecret(jsonField[1]),
+        type: 'Credential / database secret',
+        source: 'JSON field'
       };
     }
     if (primaryUrl && primaryUrl.hasSensitiveQuery) {
@@ -961,6 +1054,22 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     if (!token) return { payload: '', sourceType: 'empty', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Empty input.']) };
     if (depth > MAX_RESOLVE_DEPTH) {
       return { payload: token, sourceType: 'plain', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Maximum decoding depth reached.']) };
+    }
+
+    // VANTAGE merged connections (?m=) carry a JSON array, so check before
+    // the s= / plain-URL branches can treat the parameter as a normal URL.
+    var merged = decodeMergedShare(token);
+    if (merged) {
+      return {
+        payload: merged.payload,
+        sourceType: 'merged-share',
+        encoding: 'URL-encoded JSON + Base64',
+        decodeCount: 1,
+        notes: notes.concat([
+          'Decoded a VANTAGE merged-connections link (' + merged.items.length +
+          ' connection' + (merged.items.length === 1 ? '' : 's') + ').'
+        ])
+      };
     }
 
     if (/^[[{]/.test(token)) {
@@ -1109,8 +1218,12 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
     var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share';
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share' || sourceType === 'merged-share';
     var isVantagePermanent = sourceType === 'vantage-share' && /"expiry"\s*:\s*"Permanent"/i.test(text);
+    var hasNoExpiryByDesign = isVantagePermanent || sourceType === 'merged-share';
+    if (sourceType === 'merged-share') {
+      segments.forEach(function (seg, i) { seg.label = 'Connection ' + (i + 1); });
+    }
 
     var status;
     if (!text) status = 'INVALID';
@@ -1128,7 +1241,12 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     else messages.push('No Firebase endpoint was found in the decoded text.');
     if (expiresAt) messages.push('Expiry: ' + expiresAt.local + ' (' + expiresAt.relative + ').');
     else if (isVantagePermanent) messages.push('This VANTAGE link is permanent (no expiry).');
+    else if (sourceType === 'merged-share') messages.push('Merged links do not carry an expiry field.');
     else messages.push('No expiry timestamp was detected.');
+    if (sourceType === 'merged-share') {
+      var connections = (text.match(/"databaseURL"/g) || []).length;
+      messages.push('Merged link contains ' + connections + ' connection' + (connections === 1 ? '' : 's') + '.');
+    }
     if (credential) messages.push('A credential field was found and is masked by default.');
 
     notes.forEach(function (n) { messages.push(n); });
@@ -1137,7 +1255,7 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     if (firebaseUrls.length > 1) warnings.push('Multiple Firebase URLs were found; the first is shown as primary.');
     if (primaryUrl && !primaryUrl.isSecure) warnings.push('This endpoint uses HTTP instead of HTTPS.');
     if (expiresAt && expiresAt.expired) warnings.push('This link has expired.');
-    if (!expiresAt && !isVantagePermanent) warnings.push('This link has no detectable expiry field.');
+    if (!expiresAt && !hasNoExpiryByDesign) warnings.push('This link has no detectable expiry field.');
     if (sourceType === 'plain' && decodeCount === 0 && !isDelimited) warnings.push('Input was not recognized as Base64, a delimited payload, or a Firebase URL.');
     if (primaryUrl && primaryUrl.hasSensitiveQuery) warnings.push('Sensitive query parameters were removed from the displayed URL.');
 
@@ -1198,6 +1316,7 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     if (/^s=/i.test(t) && t.length > 8) return true;
     if (t.length >= 12 && looksLikeBase64(t)) {
       if (decodeVantageShare(t)) return true;
+      if (decodeMergedShare(t)) return true;
       var d = decodeChain(t);
       if (d.ok) return true;
     }
@@ -1283,7 +1402,14 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     }
     var results = options.dedupe ? allResults.filter(function (r) { return !r.duplicate; }) : allResults.slice();
     var uniqueUrls = new Set();
-    allResults.forEach(function (r) { if (r.primaryUrl) uniqueUrls.add(r.primaryUrl.canonical); });
+    // Count every endpoint, not only the primary one, so merged links and
+    // payloads with several URLs are represented accurately.
+    allResults.forEach(function (r) {
+      (r.firebaseUrls || []).forEach(function (u) { uniqueUrls.add(u.canonical); });
+      if (!r.firebaseUrls || !r.firebaseUrls.length) {
+        if (r.primaryUrl) uniqueUrls.add(r.primaryUrl.canonical);
+      }
+    });
     var stats = {
       total: allResults.length,
       shown: results.length,
@@ -1321,6 +1447,7 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     splitPayloadSegments: splitPayloadSegments,
     isPipeDelimitedPayload: isPipeDelimitedPayload,
     decodeVantageShare: decodeVantageShare,
+    decodeMergedShare: decodeMergedShare,
     parsePayload: parsePayload,
     resolvePayload: resolvePayload,
     inspect: inspect,
@@ -1347,7 +1474,8 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9hbWFuZ2FuZHUtODg2OTctZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8Vnx8fDE3OTMxMDU1MTUwMTU=',
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA==',
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw==',
-    'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw'
+    'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw',
+    'https://vantagepanel.netlify.app/?m=JTVCJTdCJTIydXJsJTIyJTNBJTIyaHR0cHMlM0ElMkYlMkZtZXJnZWQtYWxwaGEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tJTIyJTJDJTIya2V5JTIyJTNBJTIyS0VZQUxQSEElMjIlN0QlMkMlN0IlMjJ1cmwlMjIlM0ElMjJodHRwcyUzQSUyRiUyRm1lcmdlZC1iZXRhLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbSUyMiUyQyUyMmtleSUyMiUzQSUyMktFWUJFVEElMjIlN0QlNUQ'
   ];
 
   var MAX_INPUT_CHARS = 1500000;
@@ -1785,7 +1913,8 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
       r.source, r.resolvedPayload, r.payload, r.statusLabel, r.sourceTypeLabel,
       r.projectId, r.deviceId, r.credential ? r.credential.value : '',
       r.primaryUrl ? r.primaryUrl.url : '',
-      r.primaryUrl ? r.primaryUrl.host : ''
+      r.primaryUrl ? r.primaryUrl.host : '',
+      (r.firebaseUrls || []).map(function (u) { return u.url; }).join(' ')
     ].join(' ').toLowerCase();
   }
 
@@ -2230,7 +2359,12 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
 
     $('btn-copy-urls').addEventListener('click', function () {
       var rows = currentExportRows();
-      var urls = Array.from(new Set(rows.map(function (r) { return r.primaryUrl ? r.primaryUrl.url : ''; }).filter(Boolean)));
+      var allUrls = [];
+      rows.forEach(function (r) {
+        (r.firebaseUrls && r.firebaseUrls.length ? r.firebaseUrls : (r.primaryUrl ? [r.primaryUrl] : []))
+          .forEach(function (u) { if (u && u.url) allUrls.push(u.url); });
+      });
+      var urls = Array.from(new Set(allUrls));
       if (!urls.length) { showToast('No Firebase URLs in this view', 'error'); return; }
       copyText(urls.join('\n')).then(function (ok) { showToast(ok ? plural(urls.length, 'URL') + ' copied' : 'Copy failed', ok ? 'success' : 'error'); });
     });

@@ -13,7 +13,8 @@
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9hbWFuZ2FuZHUtODg2OTctZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8Vnx8fDE3OTMxMDU1MTUwMTU=',
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA==',
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw==',
-    'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw'
+    'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw',
+    'https://vantagepanel.netlify.app/?m=JTVCJTdCJTIydXJsJTIyJTNBJTIyaHR0cHMlM0ElMkYlMkZtZXJnZWQtYWxwaGEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tJTIyJTJDJTIya2V5JTIyJTNBJTIyS0VZQUxQSEElMjIlN0QlMkMlN0IlMjJ1cmwlMjIlM0ElMjJodHRwcyUzQSUyRiUyRm1lcmdlZC1iZXRhLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbSUyMiUyQyUyMmtleSUyMiUzQSUyMktFWUJFVEElMjIlN0QlNUQ'
   ];
 
   var MAX_INPUT_CHARS = 1500000;
@@ -451,7 +452,8 @@
       r.source, r.resolvedPayload, r.payload, r.statusLabel, r.sourceTypeLabel,
       r.projectId, r.deviceId, r.credential ? r.credential.value : '',
       r.primaryUrl ? r.primaryUrl.url : '',
-      r.primaryUrl ? r.primaryUrl.host : ''
+      r.primaryUrl ? r.primaryUrl.host : '',
+      (r.firebaseUrls || []).map(function (u) { return u.url; }).join(' ')
     ].join(' ').toLowerCase();
   }
 
@@ -896,7 +898,12 @@
 
     $('btn-copy-urls').addEventListener('click', function () {
       var rows = currentExportRows();
-      var urls = Array.from(new Set(rows.map(function (r) { return r.primaryUrl ? r.primaryUrl.url : ''; }).filter(Boolean)));
+      var allUrls = [];
+      rows.forEach(function (r) {
+        (r.firebaseUrls && r.firebaseUrls.length ? r.firebaseUrls : (r.primaryUrl ? [r.primaryUrl] : []))
+          .forEach(function (u) { if (u && u.url) allUrls.push(u.url); });
+      });
+      var urls = Array.from(new Set(allUrls));
       if (!urls.length) { showToast('No Firebase URLs in this view', 'error'); return; }
       copyText(urls.join('\n')).then(function (ok) { showToast(ok ? plural(urls.length, 'URL') + ' copied' : 'Copy failed', ok ? 'success' : 'error'); });
     });

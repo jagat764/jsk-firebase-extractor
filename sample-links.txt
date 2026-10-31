@@ -4,3 +4,5 @@ https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5
 https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw==
 # VANTAGE share link (base64url + XOR-encoded JSON {u,k,l,e})
 https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw
+# VANTAGE merged connections (?m=) — several databases in one link
+https://vantagepanel.netlify.app/?m=JTVCJTdCJTIydXJsJTIyJTNBJTIyaHR0cHMlM0ElMkYlMkZtZXJnZWQtYWxwaGEtZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tJTIyJTJDJTIya2V5JTIyJTNBJTIyS0VZQUxQSEElMjIlN0QlMkMlN0IlMjJ1cmwlMjIlM0ElMjJodHRwcyUzQSUyRiUyRm1lcmdlZC1iZXRhLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbSUyMiUyQyUyMmtleSUyMiUzQSUyMktFWUJFVEElMjIlN0QlNUQ

@@ -31,6 +31,18 @@ Some apps wrap the same details as Base64 over XOR-encoded JSON instead. The
 milliseconds (`0` means the link is permanent). LinkScope detects this layout
 automatically and reports it as a **VANTAGE share link**.
 
+VANTAGE can also merge several connections into one `?m=` link — URL-safe
+Base64 over a percent-encoded JSON array:
+
+```json
+[{"url":"https://one-default-rtdb.firebaseio.com","key":"KEY1"},
+ {"url":"https://two-default-rtdb.firebaseio.com","key":"KEY2"}]
+```
+
+Duplicate and non-URL entries are dropped, every endpoint is listed, and bulk
+exports include all of them. These are reported as **VANTAGE merged
+connections**.
+
 The tool also accepts:
 
 - full share URLs such as `https://example.net/?s=BASE64`
@@ -39,6 +51,7 @@ The tool also accepts:
 - double Base64 encoding
 - already-decoded `|` (single-pipe) and `|||` (triple-pipe) payloads
 - VANTAGE share links — Base64 over XOR-encoded JSON (`u` / `k` / `l` / `e`)
+- VANTAGE merged connections — Base64 JSON arrays of `{url, key}` (`?m=`)
 - direct Firebase URLs, with or without `https://`
 - JSON objects and URL-encoded query-string payloads
 - `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop
@@ -80,11 +93,11 @@ node tests/decode-s.test.js   # runs the decoder test suite
 
 ## Command-line decoder (`decode-s.js`)
 
-`decode-s.js` is a dependency-free Node script for `?s=` links — both the
-single-pipe payloads and VANTAGE share links (Base64 + XOR JSON). It accepts a
-full share URL, a bare `s=` value, an `s=...` assignment, or `-` to read one
-value per line from stdin, and prints the Firebase URL to paste into
-`panels.txt`.
+`decode-s.js` is a dependency-free Node script for share links — single-pipe
+payloads, VANTAGE `?s=` links (Base64 + XOR JSON) and VANTAGE `?m=` merged
+connections. It accepts a full share URL, a bare value, an `s=` / `m=`
+assignment, or `-` to read one value per line from stdin, and prints the
+Firebase URL(s) to paste into `panels.txt`.
 
 ```bash
 node decode-s.js "https://site.netlify.app/?s=XXXX"
@@ -118,8 +131,16 @@ report their credential, label and expiry (`permanent` when `e` is `0`):
 node decode-s.js "https://vantagepanel.netlify.app/?s=XXXX" --json
 ```
 
+Merged links print one URL per connection, so `--quiet` drops straight into
+`panels.txt`:
+
+```bash
+node decode-s.js "https://vantagepanel.netlify.app/?m=XXXX" --quiet
+```
+
 In the browser and bulk modes the same formats are handled by `decoder.js`,
-which reports them as **Pipe-delimited payload** or **VANTAGE share link**.
+which reports them as **Pipe-delimited payload**, **VANTAGE share link** or
+**VANTAGE merged connections**.
 
 ---
 

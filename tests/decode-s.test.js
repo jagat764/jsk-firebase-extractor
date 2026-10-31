@@ -33,6 +33,21 @@ function vantage(obj) {
 var VANTAGE_URL = 'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw';
 var VANTAGE_FB = 'https://nmpanagr-default-rtdb.firebaseio.com';
 
+// Build a merged-connections value: base64url(encodeURIComponent(JSON list)).
+function merged(list) {
+  return Buffer.from(encodeURIComponent(JSON.stringify(list)), 'utf-8').toString('base64url');
+}
+var MERGED_LIST = [
+  { url: 'https://merged-one-default-rtdb.firebaseio.com', key: 'KEYONE' },
+  { url: 'https://merged-two-default-rtdb.firebaseio.com', key: 'KEYTWO' },
+  { url: 'https://merged-one-default-rtdb.firebaseio.com', key: 'KEYONE' },
+  { url: 'not-a-url', key: 'BAD' }
+];
+var MERGED_VALUE = merged(MERGED_LIST);
+var MERGED_URL = 'https://vantagepanel.netlify.app/?m=' + MERGED_VALUE;
+var MERGED_FB1 = 'https://merged-one-default-rtdb.firebaseio.com';
+var MERGED_FB2 = 'https://merged-two-default-rtdb.firebaseio.com';
+
 function run(args) {
   return childProcess.spawnSync(process.execPath, [path.join(__dirname, '..', 'decode-s.js')].concat(args), {
     encoding: 'utf-8'
@@ -183,6 +198,54 @@ test('CLI --json exposes the connection object', function () {
   assert.strictEqual(parsed.format, 'vantage-xor');
   assert.strictEqual(parsed.connection.url, VANTAGE_FB);
   assert.strictEqual(parsed.connection.key, 'ALFINZO_PAP');
+});
+
+console.log('\nVANTAGE merged connections (JSON array)');
+
+test('decodes a ?m= merged link', function () {
+  var r = cli.decodeS(MERGED_URL);
+  assert.strictEqual(r.error, undefined);
+  assert.strictEqual(r.format, 'merged');
+  assert.strictEqual(r.firebase_url, MERGED_FB1 + '/');
+  assert.deepStrictEqual(r.urls, [MERGED_FB1 + '/', MERGED_FB2 + '/']);
+  assert.strictEqual(r.connections.length, 2);
+  assert.deepStrictEqual(r.connections[0], { url: MERGED_FB1, key: 'KEYONE' });
+});
+
+test('dedupes merged connections and drops invalid entries', function () {
+  var r = cli.decodeS(MERGED_URL);
+  assert.strictEqual(r.connections.length, 2);
+  assert.ok(!r.connections.some(function (c) { return c.url === 'not-a-url'; }));
+});
+
+test('accepts a bare merged value and an m= assignment', function () {
+  assert.strictEqual(cli.decodeS(MERGED_VALUE).urls.length, 2);
+  assert.strictEqual(cli.decodeS('m=' + MERGED_VALUE).urls.length, 2);
+});
+
+test('rejects a broken ?m= value with a clear error', function () {
+  var r = cli.decodeS('https://vantagepanel.netlify.app/?m=' + b64('hello world'));
+  assert.strictEqual(r.error, 'invalid_merged_payload');
+});
+
+test('--quiet prints every merged Firebase URL', function () {
+  var out = run([MERGED_URL, '--quiet']);
+  assert.strictEqual(out.status, 0);
+  assert.deepStrictEqual(out.stdout.trim().split('\n'), [MERGED_FB1 + '/', MERGED_FB2 + '/']);
+});
+
+test('CLI --json exposes all merged connections', function () {
+  var out = run([MERGED_URL, '--json']);
+  var parsed = JSON.parse(out.stdout);
+  assert.strictEqual(parsed.format, 'merged');
+  assert.strictEqual(parsed.connections.length, 2);
+  assert.strictEqual(parsed.connections[1].key, 'KEYTWO');
+});
+
+test('does not treat a JSON array of strings as merged', function () {
+  var s = Buffer.from(encodeURIComponent(JSON.stringify(['https://a-default-rtdb.firebaseio.com'])), 'utf-8').toString('base64url');
+  var r = cli.decodeS(s);
+  assert.notStrictEqual(r.format, 'merged');
 });
 
 console.log('\nextractSFromUrl()');
@@ -362,6 +425,49 @@ test('bulk mode recognises VANTAGE links', function () {
 test('exports the VANTAGE decoder', function () {
   assert.strictEqual(typeof D.decodeVantageShare, 'function');
   assert.strictEqual(D.decodeVantageShare('hello'), null);
+});
+
+test('classifies a merged link as merged-share with every endpoint', function () {
+  var r = D.inspect(MERGED_URL, { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.sourceType, 'merged-share');
+  assert.strictEqual(r.sourceTypeLabel, 'VANTAGE merged connections');
+  assert.deepStrictEqual(r.firebaseUrls.map(function (u) { return u.url; }), [MERGED_FB1, MERGED_FB2]);
+  assert.strictEqual(r.primaryUrl.url, MERGED_FB1);
+});
+
+test('masks the first merged credential and labels each connection', function () {
+  var r = D.inspect(MERGED_URL, { now: NOW });
+  assert.ok(r.credential);
+  assert.strictEqual(r.credential.value, 'KEYONE');
+  assert.notStrictEqual(r.credential.masked, 'KEYONE');
+  assert.deepStrictEqual(r.segments.map(function (s) { return s.label; }), ['Connection 1', 'Connection 2']);
+  assert.ok(r.segments[0].value.indexOf(MERGED_FB1 + ' | KEYONE') !== -1);
+});
+
+test('merged links do not emit a missing-expiry warning', function () {
+  var r = D.inspect(MERGED_URL, { now: NOW });
+  assert.strictEqual(r.expiresAt, null);
+  assert.ok(!r.warnings.some(function (w) { return /expiry/i.test(w); }));
+  assert.ok(r.messages.join(' ').indexOf('2 connections') !== -1);
+});
+
+test('decodes a bare merged value in the core', function () {
+  var r = D.inspect(MERGED_VALUE, { now: NOW });
+  assert.strictEqual(r.sourceType, 'merged-share');
+  assert.strictEqual(r.firebaseUrls.length, 2);
+});
+
+test('bulk mode recognises merged links', function () {
+  var out = D.processBulk([MERGED_URL, VANTAGE_URL].join('\n'), { now: NOW });
+  assert.strictEqual(out.stats.uniqueFirebaseUrls, 3);
+  assert.strictEqual(out.results[0].sourceType, 'merged-share');
+  assert.strictEqual(out.results[1].sourceType, 'vantage-share');
+});
+
+test('exports the merged decoder', function () {
+  assert.strictEqual(typeof D.decodeMergedShare, 'function');
+  assert.strictEqual(D.decodeMergedShare('hello'), null);
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed\n');

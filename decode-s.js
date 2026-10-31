@@ -19,16 +19,18 @@
 'use strict';
 
 var USAGE = [
-  'usage: node decode-s.js <url_or_s_param> [--json] [--quiet]',
+  'usage: node decode-s.js <url_or_param> [--json] [--quiet]',
   '  accepts:',
   '    - full share URL   https://vantagepanel.netlify.app/?s=XXXX',
+  '    - full merged URL  https://vantagepanel.netlify.app/?m=XXXX',
   '    - just the s value XXXX',
-  '    - an s= assignment s=XXXX',
+  '    - an s= / m= assignment',
   '    - "-" to read one value per line from stdin',
   '',
   '  decodes:',
   '    - Base64 pipe payloads      URL|KEY|EXPIRY|DEVICE (or |||)',
   '    - VANTAGE share links       base64url(XOR(JSON {u,k,l,e}))',
+  '    - VANTAGE merged links      base64url(JSON [{url,key}, ...])',
   '',
   '  flags:',
   '    --json    print the decoded result as JSON',
@@ -110,8 +112,9 @@ function decodeVantageBytes(bytes) {
 }
 
 /**
- * Decode a ?s= value and split the single-pipe payload.
- * @param {string} sParam raw value, "s=..." assignment, or full URL
+ * Decode a share value: single-pipe payload, VANTAGE ?s= link or ?m= merged
+ * connections link.
+ * @param {string} sParam raw value, "s="/"m=" assignment, or full URL
  * @returns {{raw:string, firebase_url:string, trailing:string[], url_safe:boolean,
  *            padding:number, warnings:string[], input_s:string}|{error:string, detail?:string}}
  */
@@ -119,14 +122,21 @@ function decodeS(sParam) {
   var input = String(sParam == null ? '' : sParam).trim();
   if (!input) return { error: 'empty_s_param' };
 
-  // Accept a full URL or an "s=..." assignment as well as a bare value.
+  // Accept a full URL, an "s=..."/"m=..." assignment, or a bare value.
   var s = input;
+  var fromMergedUrl = false;
   if (/^https?:/i.test(s)) {
     var fromUrl = extractSFromUrl(s);
-    if (!fromUrl) return { error: 'missing_s_param' };
-    s = fromUrl;
+    if (fromUrl) {
+      s = fromUrl;
+    } else {
+      var fromM = extractMFromUrl(s);
+      if (!fromM) return { error: 'missing_s_param' };
+      s = fromM;
+      fromMergedUrl = true;
+    }
   } else {
-    s = s.replace(/^s\s*=\s*/i, '');
+    s = s.replace(/^(?:s|m)\s*=\s*/i, '');
     try { s = decodeURIComponent(s); } catch (e) { /* keep raw */ }
   }
   s = s.replace(/\s/g, '');
@@ -163,6 +173,14 @@ function decodeS(sParam) {
 
   var raw = decoded.text;
   var padding = decoded.padding || 0;
+
+  // Merged connections decode to readable percent-encoded JSON, so check this
+  // before the printable/pipe split below.
+  var merged = decodeMergedBytes(decoded.bytes);
+  if (merged) return mergedResult(merged, s, usedUrlSafe, padding);
+  if (fromMergedUrl) {
+    return { error: 'invalid_merged_payload', detail: 'm= value is not a JSON connection list' };
+  }
 
   if (!isPrintable(raw)) {
     // Not readable text — maybe a VANTAGE share link (Base64 + XOR JSON).
@@ -244,6 +262,95 @@ function extractSFromUrl(url) {
   }
 }
 
+/**
+ * Pull the m= (merged connections) value out of a share URL.
+ * @param {string} url
+ * @returns {string|null}
+ */
+function extractMFromUrl(url) {
+  var text = String(url == null ? '' : url).trim();
+  if (!text) return null;
+  try {
+    var u = new URL(text);
+    var direct = u.searchParams.get('m');
+    if (direct) return direct;
+    return null;
+  } catch (_) {
+    var m = text.match(/[?&#]m=([^&#\s]+)/i) || text.match(/^m=([^&#\s]+)/i);
+    return m && m[1] ? m[1] : null;
+  }
+}
+
+function normalizeMergedItems(list) {
+  var items = [];
+  var seen = Object.create(null);
+  for (var i = 0; i < list.length; i++) {
+    var it = list[i];
+    if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+    var url = String(it.url != null ? it.url : (it.u != null ? it.u : (it.databaseURL != null ? it.databaseURL : ''))).trim().replace(/\/+$/, '');
+    if (!/^https?:\/\//i.test(url)) continue;
+    var key = String(it.key != null ? it.key : (it.k != null ? it.k : (it.apiKey != null ? it.apiKey : '')));
+    var id = url + '\u0000' + key;
+    if (seen[id]) continue;
+    seen[id] = true;
+    items.push({ url: url, key: key });
+  }
+  return items;
+}
+
+/**
+ * Try the VANTAGE merged-connections format:
+ * base64url( encodeURIComponent( JSON [ {url,key}, ... ] ) ).
+ * @param {Uint8Array} bytes Base64-decoded bytes
+ * @returns {{items:Array<{url:string,key:string}>,text:string}|null}
+ */
+function decodeMergedBytes(bytes) {
+  if (!bytes || bytes.length < 8) return null;
+  var text;
+  try {
+    text = Buffer.from(bytes).toString('utf-8');
+  } catch (e) {
+    return null;
+  }
+  if (!isPrintable(text)) return null;
+  var jsonText = text;
+  if (/%[0-9A-Fa-f]{2}/.test(text)) {
+    try {
+      jsonText = decodeURIComponent(text);
+    } catch (e) {
+      return null;
+    }
+  }
+  var list;
+  try {
+    list = JSON.parse(jsonText);
+  } catch (e) {
+    return null;
+  }
+  if (!Array.isArray(list) || !list.length) return null;
+  var items = normalizeMergedItems(list);
+  if (!items.length) return null;
+  return { items: items, text: jsonText };
+}
+
+function mergedResult(merged, s, urlSafe, padding) {
+  var urls = merged.items.map(function (x) { return x.url + '/'; });
+  return {
+    input_s: s,
+    raw: merged.text,
+    firebase_url: urls[0],
+    urls: urls,
+    trailing: [],
+    connections: merged.items,
+    format: 'merged',
+    url_safe: urlSafe,
+    padding: padding,
+    warnings: merged.items.some(function (x) { return !x.key; })
+      ? ['some connections have no credential field']
+      : []
+  };
+}
+
 function parseArgs(argv) {
   var args = { input: null, json: false, quiet: false, help: false };
   argv.forEach(function (arg) {
@@ -269,9 +376,16 @@ function describe(result, input) {
   out.push(line);
   out.push('input      : ' + input);
   if (result.format === 'vantage-xor') out.push('format     : VANTAGE share link (Base64 + XOR JSON)');
+  if (result.format === 'merged') out.push('format     : VANTAGE merged connections (JSON array)');
   out.push('raw        : ' + result.raw);
   out.push('firebase   : ' + result.firebase_url);
   if (result.trailing.length) out.push('trailing   : ' + result.trailing.join(' | '));
+  if (result.connections) {
+    out.push('connections: ' + result.connections.length);
+    result.connections.forEach(function (c, i) {
+      out.push('  ' + (i + 1) + '. ' + c.url + (c.key ? ' | ' + c.key : ''));
+    });
+  }
   if (result.connection) {
     if (result.connection.label) out.push('label      : ' + result.connection.label);
     out.push('expiry     : ' + (result.connection.permanent
@@ -284,7 +398,9 @@ function describe(result, input) {
   out.push(line);
   out.push('');
   out.push('→ drop this in panels.txt:');
-  out.push('   ' + result.firebase_url);
+  (result.urls || [result.firebase_url]).forEach(function (url) {
+    out.push('   ' + url);
+  });
   return out.join('\n');
 }
 
@@ -296,7 +412,7 @@ function runOne(input, flags) {
     return 3;
   }
   if (flags.json) console.log(JSON.stringify(result, null, 2));
-  else if (flags.quiet) console.log(result.firebase_url);
+  else if (flags.quiet) (result.urls || [result.firebase_url]).forEach(function (url) { console.log(url); });
   else {
     console.log(describe(result, input.trim()));
     console.log();
@@ -352,6 +468,8 @@ module.exports = {
   decodeS: decodeS,
   extractSFromUrl: extractSFromUrl,
   decodeVantageBytes: decodeVantageBytes,
+  decodeMergedBytes: decodeMergedBytes,
+  extractMFromUrl: extractMFromUrl,
   padBase64: padBase64,
   decodeBase64Utf8: decodeBase64Utf8,
   main: main,
