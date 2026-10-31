@@ -725,8 +725,11 @@
 
   function autoLoadFromQuery() {
     try {
-      var s = new URL(window.location.href).searchParams.get('s');
-      if (s) {
+      var params = new URL(window.location.href).searchParams;
+      // s= and m= (VANTAGE merged) plus the alias parameters the decoder reads.
+      var names = ['s', 'm', 'd', 'data', 'payload', 'token', 'encoded', 'share', 'link'];
+      var hasShareValue = names.some(function (name) { return !!params.get(name); });
+      if (hasShareValue) {
         $('single-input').value = window.location.href;
         setMode('single');
         runSingle({ silent: true });
