@@ -217,8 +217,18 @@
       '</article>';
   }
 
+  // Mask only the secret part of a field, so merged "url | key" rows still
+  // show the endpoint while the credential stays hidden.
+  function segmentDisplayValue(seg) {
+    if (state.revealCredential || !seg.sensitive) return seg.value;
+    if (seg.credential && seg.value.indexOf(seg.credential) !== -1) {
+      return seg.value.split(seg.credential).join(D.maskSecret(seg.credential));
+    }
+    return D.maskSecret(seg.value);
+  }
+
   function segmentRowHtml(seg, index) {
-    var value = state.revealCredential ? seg.value : (seg.sensitive ? D.maskSecret(seg.value) : seg.value);
+    var value = segmentDisplayValue(seg);
     var secretBadge = seg.sensitive
       ? '<span class="rounded bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-300">secret</span>'
       : '';
@@ -506,7 +516,7 @@
   }
 
   function miniSegmentHtml(seg, index) {
-    var value = state.revealCredential ? seg.value : (seg.sensitive ? D.maskSecret(seg.value) : seg.value);
+    var value = segmentDisplayValue(seg);
     return '' +
       '<div class="flex gap-2 py-1.5">' +
         '<span class="font-mono text-[10px] text-slate-600">' + String(index + 1).padStart(2, '0') + '</span>' +
