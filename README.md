@@ -11,10 +11,37 @@ A fast, Android-friendly, **100% offline** web tool that decodes `?s=`-style enc
 The `s=` parameter in the example links is UTF-8 Base64. Decoded, it has this shape:
 
 ```text
-FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+FIREBASE_URL | CREDENTIAL | EXPIRY_MS | OPTIONAL_DEVICE_ID
 
-https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123
+https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123
 ```
+
+Fields can be separated by a single `|` or by the older triple `|||` separator.
+Both forms are recognised, and empty fields (which `|||` produces) are skipped
+while the remaining fields keep their original position and labels.
+
+Some apps wrap the same details as Base64 over XOR-encoded JSON instead. The
+**VANTAGE** share links, for example, decode to:
+
+```json
+{"u":"https://project-default-rtdb.firebaseio.com","k":"CREDENTIAL","l":"Connected","e":0}
+```
+
+`u` is the database URL, `k` the credential, `l` a label and `e` an expiry in
+milliseconds (`0` means the link is permanent). LinkScope detects this layout
+automatically and reports it as a **VANTAGE share link**.
+
+VANTAGE can also merge several connections into one `?m=` link — URL-safe
+Base64 over a percent-encoded JSON array:
+
+```json
+[{"url":"https://one-default-rtdb.firebaseio.com","key":"KEY1"},
+ {"url":"https://two-default-rtdb.firebaseio.com","key":"KEY2"}]
+```
+
+Duplicate and non-URL entries are dropped, every endpoint is listed, and bulk
+exports include all of them. These are reported as **VANTAGE merged
+connections**.
 
 The tool also accepts:
 
@@ -22,7 +49,12 @@ The tool also accepts:
 - raw `s=BASE64` values
 - raw Base64 (standard **and** URL-safe `-` / `_`)
 - double Base64 encoding
-- already-decoded `|||` payloads
+- already-decoded `|` (single-pipe) and `|||` (triple-pipe) payloads
+- VANTAGE share links — Base64 over XOR-encoded JSON (`u` / `k` / `l` / `e`)
+- VANTAGE merged connections — Base64 JSON arrays of `{url, key}` (`?m=`)
+- the same payloads behind `d=`, `data=`, `payload=`, `token=`, `encoded=`,
+  `share=` or `link=` instead of `s=`
+- URL-encoded or plain JSON inside a share parameter
 - direct Firebase URLs, with or without `https://`
 - JSON objects and URL-encoded query-string payloads
 - `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop
@@ -57,8 +89,61 @@ Or simply open `index.html` / `standalone.html` directly in a browser — both w
 
 ```bash
 npm run build        # recompiles Tailwind CSS and regenerates standalone.html
-npm test             # runs the decoder test suite
+node tests/decode-s.test.js   # runs the decoder test suite
 ```
+
+---
+
+## Command-line decoder (`decode-s.js`)
+
+`decode-s.js` is a dependency-free Node script for share links — single-pipe
+payloads, VANTAGE `?s=` links (Base64 + XOR JSON) and VANTAGE `?m=` merged
+connections. It accepts a full share URL, a bare value, an `s=` / `m=`
+assignment, or `-` to read one value per line from stdin, and prints the
+Firebase URL(s) to paste into `panels.txt`.
+
+```bash
+node decode-s.js "https://site.netlify.app/?s=XXXX"
+node decode-s.js XXXX
+node decode-s.js "s=XXXX"
+node decode-s.js XXXX --quiet    # print only the Firebase URL
+node decode-s.js XXXX --json     # print the full decoded result as JSON
+cat links.txt | node decode-s.js - --quiet
+```
+
+Output:
+
+```text
+============================================================
+input      : https://site.netlify.app/?s=XXXX
+raw        : https://project-default-rtdb.firebaseio.com|KEY|1793105515015|device-123
+firebase   : https://project-default-rtdb.firebaseio.com/
+trailing   : KEY | 1793105515015 | device-123
+============================================================
+
+→ drop this in panels.txt:
+   https://project-default-rtdb.firebaseio.com/
+```
+
+It pads missing Base64 padding, switches to the URL-safe alphabet
+(`-` / `_`) when needed, ignores empty `|||` fields, and exits non-zero
+(`1` usage, `3` decode failure) when nothing usable was found. VANTAGE links also
+report their credential, label and expiry (`permanent` when `e` is `0`):
+
+```bash
+node decode-s.js "https://vantagepanel.netlify.app/?s=XXXX" --json
+```
+
+Merged links print one URL per connection, so `--quiet` drops straight into
+`panels.txt`:
+
+```bash
+node decode-s.js "https://vantagepanel.netlify.app/?m=XXXX" --quiet
+```
+
+In the browser and bulk modes the same formats are handled by `decoder.js`,
+which reports them as **Pipe-delimited payload**, **VANTAGE share link** or
+**VANTAGE merged connections**.
 
 ---
 
@@ -74,12 +159,13 @@ firebase-link-decoder/
 │   └── input.css           # Tailwind source + component styles
 ├── tailwind.config.js      # Tailwind content scanning config
 ├── decoder.js              # Pure JS decoding core (browser + Node/UMD)
+├── decode-s.js             # CLI for single-pipe payloads (?s= → Firebase URL)
 ├── app.js                  # UI logic (no network calls)
 ├── server.js               # Zero-dependency static preview server
 ├── build-standalone.js     # Generates standalone.html
 ├── sample-links.txt        # The two example links from the request
 ├── tests/
-│   └── decoder.test.js     # 15 unit tests
+│   └── decode-s.test.js    # CLI + decoder-core unit tests
 ├── netlify.toml            # Optional Netlify deploy config + CSP
 └── README.md
 ```

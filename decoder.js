@@ -1,5 +1,5 @@
 /*!
- * LinkScope Decoder Core — v1.0.0
+ * LinkScope Decoder Core — v1.2.0
  * 100% local text parsing. No fetch(), no network calls, no telemetry.
  * Works in browsers and Node.js (UMD).
  */
@@ -11,7 +11,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '1.2.0';
   var MAX_DECODE_ROUNDS = 3;
   var MAX_RESOLVE_DEPTH = 4;
   var DEFAULT_MAX_CHARS = 2000000;
@@ -32,6 +32,10 @@
     url: 'Plain URL',
     json: 'JSON payload',
     query: 'Query-string payload',
+    'pipe-payload': 'Pipe-delimited payload',
+    'vantage-share': 'VANTAGE share link',
+    'merged-share': 'VANTAGE merged connections',
+    'share-param': 'Share parameter',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -186,6 +190,151 @@
 
   function looksLikeEncodedContainer(text) {
     return ENCODED_CONTAINER_RE.test(String(text || ''));
+  }
+
+  // Panels do not always use "s=" — "d", "data", "payload", "token",
+  // "encoded", "share" and "link" are common alternatives.
+  var SHARE_PARAM_NAMES = 'd|data|payload|token|encoded|share|link';
+
+  function extractAliasParam(value) {
+    var raw = String(value == null ? '' : value);
+    var patterns = [
+      new RegExp('[?&](?:' + SHARE_PARAM_NAMES + ')=([^&#\\s"\']+)', 'i'),
+      new RegExp('^(?:' + SHARE_PARAM_NAMES + ')=([^&#\\s"\']+)', 'i'),
+      new RegExp('(?:^|[\\s,;({[|&])(?:' + SHARE_PARAM_NAMES + ')\\s*[:=]\\s*["\']?([A-Za-z0-9%+/=_-]{8,})', 'i')
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var m = raw.match(patterns[i]);
+      if (m && m[1]) {
+        var cleaned = cleanToken(m[1]);
+        if (cleaned && cleaned.length >= 8) return decodeSValue(cleaned);
+      }
+    }
+    return null;
+  }
+
+  // Format C — VANTAGE share links (vantagepanel.netlify.app):
+  //   ?s= base64url( XOR( JSON {u,k,l,e}, fixedKey ) )
+  // "u" = database URL, "k" = credential, "l" = label, "e" = expiry in ms
+  // (0 or missing means the link never expires). This is the app's public
+  // client-side fallback encoder, so the key ships with the page itself.
+  var VANTAGE_XOR_KEY = 'vantagepanelv1_Xk9mP2wN7qL4vR6jH3cF8yT1ZbE5sA09';
+
+  function looseBase64(value) {
+    var s = String(value == null ? '' : value).replace(/\s/g, '');
+    s = s.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, '');
+    if (s.length < 16 || !/^[A-Za-z0-9+/]+$/.test(s)) return null;
+    var mod = s.length % 4;
+    if (mod === 1) return null;
+    return mod ? s + '='.repeat(4 - mod) : s;
+  }
+
+  function xorWithKey(bytes, key) {
+    var out = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key.charCodeAt(i % key.length);
+    return out;
+  }
+
+  // Format D — VANTAGE merged connections (?m=):
+  //   base64url( encodeURIComponent( JSON [ {url,key}, ... ] ) )
+  // "Watch all" links carry several databases in one parameter.
+  function extractMFromUrl(value) {
+    var raw = String(value == null ? '' : value);
+    try {
+      var u = new URL(raw);
+      var fromUrl = u.searchParams.get('m');
+      if (fromUrl) return decodeSValue(fromUrl);
+    } catch (e) { /* not an absolute URL */ }
+    var m = raw.match(/[?&#]m=([^&#\s"']+)/i) || raw.match(/^m=([^&#\s"']+)/i);
+    return m && m[1] ? decodeSValue(m[1]) : null;
+  }
+
+  function normalizeMergedItems(list) {
+    var items = [];
+    var seen = Object.create(null);
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i];
+      if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+      var url = String(it.url != null ? it.url : (it.u != null ? it.u : (it.databaseURL != null ? it.databaseURL : ''))).trim().replace(/\/+$/, '');
+      if (!/^https?:\/\//i.test(url)) continue;
+      var key = String(it.key != null ? it.key : (it.k != null ? it.k : (it.apiKey != null ? it.apiKey : '')));
+      var id = url + '\u0000' + key;
+      if (seen[id]) continue;
+      seen[id] = true;
+      items.push({ url: url, key: key });
+    }
+    return items;
+  }
+
+  function decodeMergedShare(value) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return null;
+    if (/^https?:/i.test(raw)) {
+      raw = extractMFromUrl(raw);
+      if (!raw) return null;
+    } else {
+      raw = raw.replace(/^m\s*=\s*/i, '');
+      try { raw = decodeURIComponent(raw); } catch (e) { /* keep raw */ }
+    }
+    var b64 = looseBase64(raw);
+    if (!b64) return null;
+    var bytes = base64ToBytes(b64);
+    if (!bytes || bytes.length < 8) return null;
+    var text = bytesToUtf8(bytes);
+    if (!isPrintableText(text)) return null;
+    var jsonText = text;
+    if (/%[0-9A-Fa-f]{2}/.test(text)) {
+      try { jsonText = decodeURIComponent(text); } catch (e) { return null; }
+    }
+    var list;
+    try { list = JSON.parse(jsonText); } catch (e) { return null; }
+    if (!Array.isArray(list) || !list.length) return null;
+    var items = normalizeMergedItems(list);
+    if (!items.length) return null;
+    return {
+      items: items,
+      text: jsonText,
+      payload: JSON.stringify(items.map(function (x) { return { databaseURL: x.url, apiKey: x.key }; }))
+    };
+  }
+
+  function decodeVantageShare(value) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return null;
+    if (/^https?:/i.test(raw)) {
+      raw = extractSParam(raw);
+      if (!raw) return null;
+    } else {
+      raw = raw.replace(/^s\s*=\s*/i, '');
+      try { raw = decodeURIComponent(raw); } catch (e) { /* keep raw */ }
+    }
+    var b64 = looseBase64(raw);
+    if (!b64) return null;
+    var bytes = base64ToBytes(b64);
+    if (!bytes || bytes.length < 16) return null;
+    var text = bytesToUtf8(xorWithKey(bytes, VANTAGE_XOR_KEY));
+    if (!isPrintableText(text)) return null;
+    var obj;
+    try { obj = JSON.parse(text); } catch (e) { return null; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+    var url = String(obj.u != null ? obj.u : (obj.url != null ? obj.url : '')).trim();
+    if (!/^https?:\/\//i.test(url)) return null;
+    var key = String(obj.k != null ? obj.k : (obj.key != null ? obj.key : ''));
+    var label = String(obj.l != null ? obj.l : (obj.label != null ? obj.label : ''));
+    var expiryMs = Number(obj.e != null ? obj.e : (obj.exp != null ? obj.exp : 0)) || 0;
+    return {
+      payload: JSON.stringify({
+        databaseURL: url,
+        apiKey: key,
+        label: label,
+        expiry: expiryMs > 0 ? expiryMs : 'Permanent'
+      }),
+      text: text,
+      url: url,
+      key: key,
+      label: label,
+      expiryMs: expiryMs
+    };
   }
 
   function firebaseUrlRegex() {
@@ -374,32 +523,71 @@
     return out;
   }
 
+  // Format B — single-pipe payloads:
+  //   https://project-default-rtdb.firebaseio.com|KEY|1793105515015|device-123
+  // The older format uses "|||" between fields. A single "|" payload is only
+  // recognised when field 1 is a Firebase endpoint and at least one later field
+  // has a value, so ordinary prose containing a pipe is left alone.
+  function isPipeDelimitedPayload(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (!text || text.indexOf('|') === -1 || /\|\|/.test(text)) return false;
+    var parts = text.split('|');
+    if (parts.length < 2) return false;
+    var head = parts[0].trim();
+    if (!head || !FIREBASE_HOST_RE.test(head)) return false;
+    for (var i = 1; i < parts.length; i++) {
+      if (parts[i].trim()) return true;
+    }
+    return false;
+  }
+
+  // Array items shaped like { url, key } (merged connections, JSON exports)
+  // are summarised instead of dumped as raw JSON.
+  function summarizeConnectionObject(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    var url = String(value.url != null ? value.url : (value.u != null ? value.u : (value.databaseURL != null ? value.databaseURL : ''))).trim();
+    if (!/^https?:\/\//i.test(url)) return null;
+    var key = String(value.key != null ? value.key : (value.k != null ? value.k : (value.apiKey != null ? value.apiKey : '')));
+    return { text: key ? url + ' | ' + key : url, key: key, hasKey: !!key };
+  }
+
   function splitPayloadSegments(payload) {
     var text = String(payload == null ? '' : payload).trim();
     if (!text) return [];
-    if (/\|\|/.test(text)) {
-      return text.split(/\s*\|{2,}\s*/).map(function (v, i) {
+    var separator = /\|\|/.test(text) ? /\s*\|{2,}\s*/ : (isPipeDelimitedPayload(text) ? /\s*\|\s*/ : null);
+    if (separator) {
+      return text.split(separator).map(function (v, i) {
         var c = classifySegment(v, i, true);
         return { index: i, label: c.label, value: v, kind: c.kind, sensitive: c.sensitive };
+      }).filter(function (seg) {
+        // Drop empty fields from the breakdown but keep their original index so
+        // labels stay aligned with field 1 / field 2 / field 3.
+        return String(seg.value).trim() !== '';
       });
     }
     if (/^[[{]/.test(text)) {
       try {
         var obj = JSON.parse(text);
         if (obj && typeof obj === 'object') {
-          var entries = Array.isArray(obj)
-            ? obj.map(function (v, i) { return ['item' + (i + 1), v]; })
+          var isArrayPayload = Array.isArray(obj);
+          var entries = isArrayPayload
+            ? obj.map(function (v, i) { return ['item ' + (i + 1), v]; })
             : Object.keys(obj).map(function (k) { return [k, obj[k]]; });
           return entries.map(function (entry, i) {
             var k = entry[0];
-            var v = typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1] == null ? '' : entry[1]);
+            // Connection objects look better as "url | key" than as raw JSON.
+            var summary = isArrayPayload ? summarizeConnectionObject(entry[1]) : null;
+            var v = summary
+              ? summary.text
+              : (typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1] == null ? '' : entry[1]));
             var c = classifySegment(v, i, false);
             return {
               index: i,
               label: humanizeKey(k) || c.label,
               value: v,
               kind: c.kind,
-              sensitive: c.sensitive || /key|secret|token|auth|pass/i.test(k)
+              credential: summary && summary.key ? summary.key : '',
+              sensitive: c.sensitive || !!(summary && summary.hasKey) || /key|secret|token|auth|pass/i.test(k)
             };
           });
         }
@@ -431,13 +619,27 @@
     if (apiKeys.length) {
       return { value: apiKeys[0], masked: maskSecret(apiKeys[0]), type: 'Firebase Web API key', source: 'pattern match' };
     }
-    var seg = segments.find(function (s) { return (s.kind === 'credential' || s.kind === 'apiKey') && s.value; });
+    var seg = segments.find(function (s) {
+      return (s.kind === 'credential' || s.kind === 'apiKey' || s.sensitive) && s.value;
+    });
     if (seg) {
+      var segValue = seg.credential || seg.value;
       return {
-        value: seg.value,
-        masked: maskSecret(seg.value),
+        value: segValue,
+        masked: maskSecret(segValue),
         type: seg.kind === 'apiKey' ? 'Firebase Web API key' : 'Credential / database secret',
         source: 'field ' + (seg.index + 1)
+      };
+    }
+    // JSON payloads (including merged-connection arrays) keep their secrets in
+    // named fields, so look for those before falling back to query params.
+    var jsonField = String(text || '').match(/"(?:apiKey|api_key|key|credential|secret)"\s*:\s*"([^"]{3,})"/i);
+    if (jsonField) {
+      return {
+        value: jsonField[1],
+        masked: maskSecret(jsonField[1]),
+        type: 'Credential / database secret',
+        source: 'JSON field'
       };
     }
     if (primaryUrl && primaryUrl.hasSensitiveQuery) {
@@ -535,10 +737,10 @@
       }
       return '';
     };
-    var url = get('url', 'firebaseUrl', 'firebase_url', 'firebaseURL', 'databaseURL', 'databaseUrl', 'endpoint', 'host');
-    var key = get('key', 'apiKey', 'api_key', 'auth', 'secret', 'credential', 'token');
-    var exp = get('expiresAt', 'expiry', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
-    var dev = get('deviceId', 'device_id', 'device', 'ref', 'reference');
+    var url = get('url', 'u', 'firebaseUrl', 'firebase_url', 'firebaseURL', 'databaseURL', 'databaseUrl', 'endpoint', 'host');
+    var key = get('key', 'k', 'apiKey', 'api_key', 'auth', 'secret', 'credential', 'token');
+    var exp = get('expiresAt', 'expiry', 'e', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
+    var dev = get('deviceId', 'device_id', 'device', 'dev', 'ref', 'reference');
     var parts = [url, key, exp, dev].filter(Boolean);
     if (parts.length) return parts.join('|||');
     var fbs = strings.filter(function (s) { return FIREBASE_HOST_RE.test(s); });
@@ -567,6 +769,22 @@
     if (!token) return { payload: '', sourceType: 'empty', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Empty input.']) };
     if (depth > MAX_RESOLVE_DEPTH) {
       return { payload: token, sourceType: 'plain', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Maximum decoding depth reached.']) };
+    }
+
+    // VANTAGE merged connections (?m=) carry a JSON array, so check before
+    // the s= / plain-URL branches can treat the parameter as a normal URL.
+    var merged = decodeMergedShare(token);
+    if (merged) {
+      return {
+        payload: merged.payload,
+        sourceType: 'merged-share',
+        encoding: 'URL-encoded JSON + Base64',
+        decodeCount: 1,
+        notes: notes.concat([
+          'Decoded a VANTAGE merged-connections link (' + merged.items.length +
+          ' connection' + (merged.items.length === 1 ? '' : 's') + ').'
+        ])
+      };
     }
 
     if (/^[[{]/.test(token)) {
@@ -601,12 +819,82 @@
           notes: sNotes
         };
       }
+      // Not plain Base64 — try the VANTAGE XOR-obfuscated share payload.
+      var vantageS = decodeVantageShare(sVal);
+      if (vantageS) {
+        return {
+          payload: vantageS.payload,
+          sourceType: 'vantage-share',
+          encoding: 'XOR + Base64',
+          decodeCount: 1,
+          notes: notes.concat(['Decoded a VANTAGE share link (Base64 + XOR-encoded JSON).'])
+        };
+      }
+      // Some panels put URL-encoded or plain JSON straight into s=.
+      if (/^[[{]/.test(sVal)) {
+        var jsonSPath = jsonToPayload(sVal, []);
+        if (jsonSPath) {
+          return {
+            payload: jsonSPath,
+            sourceType: 's-param',
+            encoding: 'json',
+            decodeCount: 0,
+            notes: notes.concat(['Parsed a JSON payload from the s= value.'])
+          };
+        }
+      }
       notes = notes.concat(['Found an s= value, but it did not decode as readable Base64.']);
+    }
+
+    // Alternative share parameters (d=, data=, payload=, token=, …).
+    var aliasValue = extractAliasParam(token);
+    if (aliasValue) {
+      var aliasNotes = notes.concat(['Found a share parameter value.']);
+      if (/^[[{]/.test(aliasValue)) {
+        var aliasJson = jsonToPayload(aliasValue, []);
+        if (aliasJson) {
+          return { payload: aliasJson, sourceType: 'share-param', encoding: 'json', decodeCount: 0, notes: aliasNotes.concat(['Parsed a JSON payload from the share parameter.']) };
+        }
+      }
+      if (isPipeDelimitedPayload(aliasValue)) {
+        return { payload: aliasValue, sourceType: 'share-param', encoding: 'plain', decodeCount: 0, notes: aliasNotes.concat(['Share parameter contains a single-pipe payload.']) };
+      }
+      if (/^https?:\/\//i.test(aliasValue)) {
+        return { payload: aliasValue, sourceType: 'share-param', encoding: 'plain', decodeCount: 0, notes: aliasNotes.concat(['Share parameter contains a URL.']) };
+      }
+      var aliasDecoded = decodeChain(aliasValue);
+      if (aliasDecoded.ok) {
+        return {
+          payload: aliasDecoded.text,
+          sourceType: 'share-param',
+          encoding: aliasDecoded.encoding,
+          decodeCount: aliasDecoded.count,
+          notes: aliasNotes.concat(['Decoded share parameter using ' + aliasDecoded.encoding + '.'])
+        };
+      }
+      var aliasVantage = decodeVantageShare(aliasValue);
+      if (aliasVantage) {
+        return { payload: aliasVantage.payload, sourceType: 'share-param', encoding: 'XOR + Base64', decodeCount: 1, notes: aliasNotes.concat(['Decoded a VANTAGE share value from a share parameter.']) };
+      }
+      var aliasMerged = decodeMergedShare(aliasValue);
+      if (aliasMerged) {
+        return {
+          payload: aliasMerged.payload,
+          sourceType: 'share-param',
+          encoding: 'URL-encoded JSON + Base64',
+          decodeCount: 1,
+          notes: aliasNotes.concat(['Decoded merged connections from a share parameter.'])
+        };
+      }
     }
 
     // A delimited payload can begin with https://, so detect it before plain URLs.
     if (/\|\|/.test(token)) {
       return { payload: token, sourceType: 'payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a ||| delimited payload.']) };
+    }
+
+    if (isPipeDelimitedPayload(token)) {
+      return { payload: token, sourceType: 'pipe-payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a single-pipe (|) delimited payload.']) };
     }
 
     // Query-string payloads can contain an encoded Firebase host; decode them
@@ -646,6 +934,16 @@
     }
 
     if (looksLikeBase64(token)) {
+      var vantageRaw = decodeVantageShare(token);
+      if (vantageRaw) {
+        return {
+          payload: vantageRaw.payload,
+          sourceType: 'vantage-share',
+          encoding: 'XOR + Base64',
+          decodeCount: 1,
+          notes: notes.concat(['Decoded a VANTAGE share value (Base64 + XOR-encoded JSON).'])
+        };
+      }
       var decodedRaw = decodeChain(token);
       if (decodedRaw.ok) {
         var rawNotes = notes.concat(['Decoded raw value using ' + decodedRaw.encoding + '.']);
@@ -689,8 +987,13 @@
     var decodeCount = options.decodeCount || 0;
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
-    var isDelimited = /\|\|/.test(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload';
+    var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share' || sourceType === 'merged-share' || sourceType === 'share-param';
+    var isVantagePermanent = sourceType === 'vantage-share' && /"expiry"\s*:\s*"Permanent"/i.test(text);
+    var hasNoExpiryByDesign = isVantagePermanent || sourceType === 'merged-share';
+    if (sourceType === 'merged-share') {
+      segments.forEach(function (seg, i) { seg.label = 'Connection ' + (i + 1); });
+    }
 
     var status;
     if (!text) status = 'INVALID';
@@ -707,7 +1010,13 @@
     if (firebaseUrls.length) messages.push('Found ' + firebaseUrls.length + ' Firebase endpoint' + (firebaseUrls.length === 1 ? '' : 's') + '.');
     else messages.push('No Firebase endpoint was found in the decoded text.');
     if (expiresAt) messages.push('Expiry: ' + expiresAt.local + ' (' + expiresAt.relative + ').');
+    else if (isVantagePermanent) messages.push('This VANTAGE link is permanent (no expiry).');
+    else if (sourceType === 'merged-share') messages.push('Merged links do not carry an expiry field.');
     else messages.push('No expiry timestamp was detected.');
+    if (sourceType === 'merged-share') {
+      var connections = (text.match(/"databaseURL"/g) || []).length;
+      messages.push('Merged link contains ' + connections + ' connection' + (connections === 1 ? '' : 's') + '.');
+    }
     if (credential) messages.push('A credential field was found and is masked by default.');
 
     notes.forEach(function (n) { messages.push(n); });
@@ -716,7 +1025,7 @@
     if (firebaseUrls.length > 1) warnings.push('Multiple Firebase URLs were found; the first is shown as primary.');
     if (primaryUrl && !primaryUrl.isSecure) warnings.push('This endpoint uses HTTP instead of HTTPS.');
     if (expiresAt && expiresAt.expired) warnings.push('This link has expired.');
-    if (!expiresAt) warnings.push('This link has no detectable expiry field.');
+    if (!expiresAt && !hasNoExpiryByDesign) warnings.push('This link has no detectable expiry field.');
     if (sourceType === 'plain' && decodeCount === 0 && !isDelimited) warnings.push('Input was not recognized as Base64, a delimited payload, or a Firebase URL.');
     if (primaryUrl && primaryUrl.hasSensitiveQuery) warnings.push('Sensitive query parameters were removed from the displayed URL.');
 
@@ -771,10 +1080,14 @@
     if (/^https?:\/\//i.test(t)) return true;
     if (FIREBASE_HOST_RE.test(t)) return true;
     if (/\|\|/.test(t)) return true;
+    if (isPipeDelimitedPayload(t)) return true;
     if (API_KEY_SINGLE_RE.test(t)) return true;
     if (extractSParam(t)) return true;
-    if (/^s=/i.test(t) && t.length > 8) return true;
+    if (extractAliasParam(t)) return true;
+    if (/^[sm]=/i.test(t) && t.length > 8) return true;
     if (t.length >= 12 && looksLikeBase64(t)) {
+      if (decodeVantageShare(t)) return true;
+      if (decodeMergedShare(t)) return true;
       var d = decodeChain(t);
       if (d.ok) return true;
     }
@@ -805,7 +1118,7 @@
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
       if (!line || /^(#|\/\/|;)/.test(line)) continue;
-      if (/\|\|/.test(line) || /^[[{]/.test(line)) {
+      if (/\|\|/.test(line) || isPipeDelimitedPayload(line) || /^[[{]/.test(line)) {
         if (!push(line, i + 1)) break;
         continue;
       }
@@ -860,7 +1173,14 @@
     }
     var results = options.dedupe ? allResults.filter(function (r) { return !r.duplicate; }) : allResults.slice();
     var uniqueUrls = new Set();
-    allResults.forEach(function (r) { if (r.primaryUrl) uniqueUrls.add(r.primaryUrl.canonical); });
+    // Count every endpoint, not only the primary one, so merged links and
+    // payloads with several URLs are represented accurately.
+    allResults.forEach(function (r) {
+      (r.firebaseUrls || []).forEach(function (u) { uniqueUrls.add(u.canonical); });
+      if (!r.firebaseUrls || !r.firebaseUrls.length) {
+        if (r.primaryUrl) uniqueUrls.add(r.primaryUrl.canonical);
+      }
+    });
     var stats = {
       total: allResults.length,
       shown: results.length,
@@ -896,6 +1216,9 @@
     maskSecret: maskSecret,
     toTimestampMs: toTimestampMs,
     splitPayloadSegments: splitPayloadSegments,
+    isPipeDelimitedPayload: isPipeDelimitedPayload,
+    decodeVantageShare: decodeVantageShare,
+    decodeMergedShare: decodeMergedShare,
     parsePayload: parsePayload,
     resolvePayload: resolvePayload,
     inspect: inspect,
