@@ -263,9 +263,10 @@
         </summary>
         <div class="border-t border-white/10 p-4 text-xs leading-6 text-slate-400 sm:p-5 sm:text-sm">
           <p>The <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> parameter is UTF-8 Base64. After decoding it usually looks like this:</p>
-          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL | CREDENTIAL | EXPIRY_MS | OPTIONAL_DEVICE_ID
 
-https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123</pre>
+https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</pre>
+          <p class="mt-2">Fields may be separated by a single <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">|</code> or by the older triple <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">|||</code> separator — both formats are decoded the same way.</p>
           <ul class="mt-3 space-y-1.5">
             <li>• <span class="font-semibold text-slate-300">Field 1</span> — Firebase / Realtime Database endpoint.</li>
             <li>• <span class="font-semibold text-slate-300">Field 2</span> — database secret, API key, or short credential.</li>

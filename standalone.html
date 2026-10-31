@@ -264,9 +264,10 @@
         </summary>
         <div class="border-t border-white/10 p-4 text-xs leading-6 text-slate-400 sm:p-5 sm:text-sm">
           <p>The <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> parameter is UTF-8 Base64. After decoding it usually looks like this:</p>
-          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL | CREDENTIAL | EXPIRY_MS | OPTIONAL_DEVICE_ID
 
-https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123</pre>
+https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</pre>
+          <p class="mt-2">Fields may be separated by a single <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">|</code> or by the older triple <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">|||</code> separator — both formats are decoded the same way.</p>
           <ul class="mt-3 space-y-1.5">
             <li>• <span class="font-semibold text-slate-300">Field 1</span> — Firebase / Realtime Database endpoint.</li>
             <li>• <span class="font-semibold text-slate-300">Field 2</span> — database secret, API key, or short credential.</li>
@@ -334,6 +335,7 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     url: 'Plain URL',
     json: 'JSON payload',
     query: 'Query-string payload',
+    'pipe-payload': 'Pipe-delimited payload',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -676,13 +678,36 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     return out;
   }
 
+  // Format B — single-pipe payloads:
+  //   https://project-default-rtdb.firebaseio.com|KEY|1793105515015|device-123
+  // The older format uses "|||" between fields. A single "|" payload is only
+  // recognised when field 1 is a Firebase endpoint and at least one later field
+  // has a value, so ordinary prose containing a pipe is left alone.
+  function isPipeDelimitedPayload(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (!text || text.indexOf('|') === -1 || /\|\|/.test(text)) return false;
+    var parts = text.split('|');
+    if (parts.length < 2) return false;
+    var head = parts[0].trim();
+    if (!head || !FIREBASE_HOST_RE.test(head)) return false;
+    for (var i = 1; i < parts.length; i++) {
+      if (parts[i].trim()) return true;
+    }
+    return false;
+  }
+
   function splitPayloadSegments(payload) {
     var text = String(payload == null ? '' : payload).trim();
     if (!text) return [];
-    if (/\|\|/.test(text)) {
-      return text.split(/\s*\|{2,}\s*/).map(function (v, i) {
+    var separator = /\|\|/.test(text) ? /\s*\|{2,}\s*/ : (isPipeDelimitedPayload(text) ? /\s*\|\s*/ : null);
+    if (separator) {
+      return text.split(separator).map(function (v, i) {
         var c = classifySegment(v, i, true);
         return { index: i, label: c.label, value: v, kind: c.kind, sensitive: c.sensitive };
+      }).filter(function (seg) {
+        // Drop empty fields from the breakdown but keep their original index so
+        // labels stay aligned with field 1 / field 2 / field 3.
+        return String(seg.value).trim() !== '';
       });
     }
     if (/^[[{]/.test(text)) {
@@ -911,6 +936,10 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
       return { payload: token, sourceType: 'payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a ||| delimited payload.']) };
     }
 
+    if (isPipeDelimitedPayload(token)) {
+      return { payload: token, sourceType: 'pipe-payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a single-pipe (|) delimited payload.']) };
+    }
+
     // Query-string payloads can contain an encoded Firebase host; decode them
     // before running the bare-host detector (which would otherwise match "%2Fhost").
     if (token.indexOf('=') !== -1 && /(?:^|&)(?:url|firebase|key|auth|expires|expiry|device)/i.test(token)) {
@@ -991,8 +1020,8 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     var decodeCount = options.decodeCount || 0;
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
-    var isDelimited = /\|\|/.test(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload';
+    var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload';
 
     var status;
     if (!text) status = 'INVALID';
@@ -1073,6 +1102,7 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     if (/^https?:\/\//i.test(t)) return true;
     if (FIREBASE_HOST_RE.test(t)) return true;
     if (/\|\|/.test(t)) return true;
+    if (isPipeDelimitedPayload(t)) return true;
     if (API_KEY_SINGLE_RE.test(t)) return true;
     if (extractSParam(t)) return true;
     if (/^s=/i.test(t) && t.length > 8) return true;
@@ -1107,7 +1137,7 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
       if (!line || /^(#|\/\/|;)/.test(line)) continue;
-      if (/\|\|/.test(line) || /^[[{]/.test(line)) {
+      if (/\|\|/.test(line) || isPipeDelimitedPayload(line) || /^[[{]/.test(line)) {
         if (!push(line, i + 1)) break;
         continue;
       }
@@ -1198,6 +1228,7 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     maskSecret: maskSecret,
     toTimestampMs: toTimestampMs,
     splitPayloadSegments: splitPayloadSegments,
+    isPipeDelimitedPayload: isPipeDelimitedPayload,
     parsePayload: parsePayload,
     resolvePayload: resolvePayload,
     inspect: inspect,
@@ -1205,6 +1236,7 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
     processBulk: processBulk
   };
 });
+
 
   </script>
   <script>
@@ -1221,7 +1253,8 @@ https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device
 
   var SAMPLE_LINKS = [
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9hbWFuZ2FuZHUtODg2OTctZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8Vnx8fDE3OTMxMDU1MTUwMTU=',
-    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA=='
+    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA==',
+    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw=='
   ];
 
   var MAX_INPUT_CHARS = 1500000;

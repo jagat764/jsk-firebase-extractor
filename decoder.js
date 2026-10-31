@@ -32,6 +32,7 @@
     url: 'Plain URL',
     json: 'JSON payload',
     query: 'Query-string payload',
+    'pipe-payload': 'Pipe-delimited payload',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -374,13 +375,36 @@
     return out;
   }
 
+  // Format B — single-pipe payloads:
+  //   https://project-default-rtdb.firebaseio.com|KEY|1793105515015|device-123
+  // The older format uses "|||" between fields. A single "|" payload is only
+  // recognised when field 1 is a Firebase endpoint and at least one later field
+  // has a value, so ordinary prose containing a pipe is left alone.
+  function isPipeDelimitedPayload(value) {
+    var text = String(value == null ? '' : value).trim();
+    if (!text || text.indexOf('|') === -1 || /\|\|/.test(text)) return false;
+    var parts = text.split('|');
+    if (parts.length < 2) return false;
+    var head = parts[0].trim();
+    if (!head || !FIREBASE_HOST_RE.test(head)) return false;
+    for (var i = 1; i < parts.length; i++) {
+      if (parts[i].trim()) return true;
+    }
+    return false;
+  }
+
   function splitPayloadSegments(payload) {
     var text = String(payload == null ? '' : payload).trim();
     if (!text) return [];
-    if (/\|\|/.test(text)) {
-      return text.split(/\s*\|{2,}\s*/).map(function (v, i) {
+    var separator = /\|\|/.test(text) ? /\s*\|{2,}\s*/ : (isPipeDelimitedPayload(text) ? /\s*\|\s*/ : null);
+    if (separator) {
+      return text.split(separator).map(function (v, i) {
         var c = classifySegment(v, i, true);
         return { index: i, label: c.label, value: v, kind: c.kind, sensitive: c.sensitive };
+      }).filter(function (seg) {
+        // Drop empty fields from the breakdown but keep their original index so
+        // labels stay aligned with field 1 / field 2 / field 3.
+        return String(seg.value).trim() !== '';
       });
     }
     if (/^[[{]/.test(text)) {
@@ -609,6 +633,10 @@
       return { payload: token, sourceType: 'payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a ||| delimited payload.']) };
     }
 
+    if (isPipeDelimitedPayload(token)) {
+      return { payload: token, sourceType: 'pipe-payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a single-pipe (|) delimited payload.']) };
+    }
+
     // Query-string payloads can contain an encoded Firebase host; decode them
     // before running the bare-host detector (which would otherwise match "%2Fhost").
     if (token.indexOf('=') !== -1 && /(?:^|&)(?:url|firebase|key|auth|expires|expiry|device)/i.test(token)) {
@@ -689,8 +717,8 @@
     var decodeCount = options.decodeCount || 0;
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
-    var isDelimited = /\|\|/.test(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload';
+    var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload';
 
     var status;
     if (!text) status = 'INVALID';
@@ -771,6 +799,7 @@
     if (/^https?:\/\//i.test(t)) return true;
     if (FIREBASE_HOST_RE.test(t)) return true;
     if (/\|\|/.test(t)) return true;
+    if (isPipeDelimitedPayload(t)) return true;
     if (API_KEY_SINGLE_RE.test(t)) return true;
     if (extractSParam(t)) return true;
     if (/^s=/i.test(t) && t.length > 8) return true;
@@ -805,7 +834,7 @@
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i].trim();
       if (!line || /^(#|\/\/|;)/.test(line)) continue;
-      if (/\|\|/.test(line) || /^[[{]/.test(line)) {
+      if (/\|\|/.test(line) || isPipeDelimitedPayload(line) || /^[[{]/.test(line)) {
         if (!push(line, i + 1)) break;
         continue;
       }
@@ -896,6 +925,7 @@
     maskSecret: maskSecret,
     toTimestampMs: toTimestampMs,
     splitPayloadSegments: splitPayloadSegments,
+    isPipeDelimitedPayload: isPipeDelimitedPayload,
     parsePayload: parsePayload,
     resolvePayload: resolvePayload,
     inspect: inspect,

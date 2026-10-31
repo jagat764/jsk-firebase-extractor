@@ -48,6 +48,7 @@ linkscope-netlify/
 ├── assets/
 │   └── tailwind.css        # Compiled Tailwind CSS (local)
 ├── decoder.js              # Decoder core
+├── decode-s.js             # Node CLI for single-pipe ?s= links (optional)
 ├── app.js                  # UI logic
 ├── netlify.toml            # Build + security headers
 ├── sample-links.txt        # Example links

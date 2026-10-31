@@ -11,10 +11,14 @@ A fast, Android-friendly, **100% offline** web tool that decodes `?s=`-style enc
 The `s=` parameter in the example links is UTF-8 Base64. Decoded, it has this shape:
 
 ```text
-FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+FIREBASE_URL | CREDENTIAL | EXPIRY_MS | OPTIONAL_DEVICE_ID
 
-https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123
+https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123
 ```
+
+Fields can be separated by a single `|` or by the older triple `|||` separator.
+Both forms are recognised, and empty fields (which `|||` produces) are skipped
+while the remaining fields keep their original position and labels.
 
 The tool also accepts:
 
@@ -22,7 +26,7 @@ The tool also accepts:
 - raw `s=BASE64` values
 - raw Base64 (standard **and** URL-safe `-` / `_`)
 - double Base64 encoding
-- already-decoded `|||` payloads
+- already-decoded `|` (single-pipe) and `|||` (triple-pipe) payloads
 - direct Firebase URLs, with or without `https://`
 - JSON objects and URL-encoded query-string payloads
 - `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop
@@ -57,8 +61,46 @@ Or simply open `index.html` / `standalone.html` directly in a browser — both w
 
 ```bash
 npm run build        # recompiles Tailwind CSS and regenerates standalone.html
-npm test             # runs the decoder test suite
+node tests/decode-s.test.js   # runs the decoder test suite
 ```
+
+---
+
+## Command-line decoder (`decode-s.js`)
+
+`decode-s.js` is a dependency-free Node script for the single-pipe variant. It
+accepts a full share URL, a bare `s=` value, an `s=...` assignment, or `-` to
+read one value per line from stdin, and prints the Firebase URL to paste into
+`panels.txt`.
+
+```bash
+node decode-s.js "https://site.netlify.app/?s=XXXX"
+node decode-s.js XXXX
+node decode-s.js "s=XXXX"
+node decode-s.js XXXX --quiet    # print only the Firebase URL
+node decode-s.js XXXX --json     # print the full decoded result as JSON
+cat links.txt | node decode-s.js - --quiet
+```
+
+Output:
+
+```text
+============================================================
+input      : https://site.netlify.app/?s=XXXX
+raw        : https://project-default-rtdb.firebaseio.com|KEY|1793105515015|device-123
+firebase   : https://project-default-rtdb.firebaseio.com/
+trailing   : KEY | 1793105515015 | device-123
+============================================================
+
+→ drop this in panels.txt:
+   https://project-default-rtdb.firebaseio.com/
+```
+
+It pads missing Base64 padding, switches to the URL-safe alphabet
+(`-` / `_`) when needed, ignores empty `|||` fields, and exits non-zero
+(`1` usage, `3` decode failure) when nothing usable was found. In the browser
+and bulk modes the same format is handled by `decoder.js`, which reports it as
+**Pipe-delimited payload**.
 
 ---
 
@@ -74,12 +116,13 @@ firebase-link-decoder/
 │   └── input.css           # Tailwind source + component styles
 ├── tailwind.config.js      # Tailwind content scanning config
 ├── decoder.js              # Pure JS decoding core (browser + Node/UMD)
+├── decode-s.js             # CLI for single-pipe payloads (?s= → Firebase URL)
 ├── app.js                  # UI logic (no network calls)
 ├── server.js               # Zero-dependency static preview server
 ├── build-standalone.js     # Generates standalone.html
 ├── sample-links.txt        # The two example links from the request
 ├── tests/
-│   └── decoder.test.js     # 15 unit tests
+│   └── decode-s.test.js    # CLI + decoder-core unit tests
 ├── netlify.toml            # Optional Netlify deploy config + CSP
 └── README.md
 ```
