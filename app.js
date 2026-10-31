@@ -1,5 +1,5 @@
 /*!
- * LinkScope UI — v1.0.0
+ * LinkScope UI — v1.2.0
  * Depends on decoder.js (window.LinkScopeDecoder).
  * All processing is local; no fetch/XHR/WebSocket calls are made.
  */

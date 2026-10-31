@@ -52,6 +52,9 @@ The tool also accepts:
 - already-decoded `|` (single-pipe) and `|||` (triple-pipe) payloads
 - VANTAGE share links — Base64 over XOR-encoded JSON (`u` / `k` / `l` / `e`)
 - VANTAGE merged connections — Base64 JSON arrays of `{url, key}` (`?m=`)
+- the same payloads behind `d=`, `data=`, `payload=`, `token=`, `encoded=`,
+  `share=` or `link=` instead of `s=`
+- URL-encoded or plain JSON inside a share parameter
 - direct Firebase URLs, with or without `https://`
 - JSON objects and URL-encoded query-string payloads
 - `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop

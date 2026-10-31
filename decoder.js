@@ -1,5 +1,5 @@
 /*!
- * LinkScope Decoder Core — v1.0.0
+ * LinkScope Decoder Core — v1.2.0
  * 100% local text parsing. No fetch(), no network calls, no telemetry.
  * Works in browsers and Node.js (UMD).
  */
@@ -11,7 +11,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  var VERSION = '1.0.0';
+  var VERSION = '1.2.0';
   var MAX_DECODE_ROUNDS = 3;
   var MAX_RESOLVE_DEPTH = 4;
   var DEFAULT_MAX_CHARS = 2000000;
@@ -35,6 +35,7 @@
     'pipe-payload': 'Pipe-delimited payload',
     'vantage-share': 'VANTAGE share link',
     'merged-share': 'VANTAGE merged connections',
+    'share-param': 'Share parameter',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -189,6 +190,27 @@
 
   function looksLikeEncodedContainer(text) {
     return ENCODED_CONTAINER_RE.test(String(text || ''));
+  }
+
+  // Panels do not always use "s=" — "d", "data", "payload", "token",
+  // "encoded", "share" and "link" are common alternatives.
+  var SHARE_PARAM_NAMES = 'd|data|payload|token|encoded|share|link';
+
+  function extractAliasParam(value) {
+    var raw = String(value == null ? '' : value);
+    var patterns = [
+      new RegExp('[?&](?:' + SHARE_PARAM_NAMES + ')=([^&#\\s"\']+)', 'i'),
+      new RegExp('^(?:' + SHARE_PARAM_NAMES + ')=([^&#\\s"\']+)', 'i'),
+      new RegExp('(?:^|[\\s,;({[|&])(?:' + SHARE_PARAM_NAMES + ')\\s*[:=]\\s*["\']?([A-Za-z0-9%+/=_-]{8,})', 'i')
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var m = raw.match(patterns[i]);
+      if (m && m[1]) {
+        var cleaned = cleanToken(m[1]);
+        if (cleaned && cleaned.length >= 8) return decodeSValue(cleaned);
+      }
+    }
+    return null;
   }
 
   // Format C — VANTAGE share links (vantagepanel.netlify.app):
@@ -715,10 +737,10 @@
       }
       return '';
     };
-    var url = get('url', 'firebaseUrl', 'firebase_url', 'firebaseURL', 'databaseURL', 'databaseUrl', 'endpoint', 'host');
-    var key = get('key', 'apiKey', 'api_key', 'auth', 'secret', 'credential', 'token');
-    var exp = get('expiresAt', 'expiry', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
-    var dev = get('deviceId', 'device_id', 'device', 'ref', 'reference');
+    var url = get('url', 'u', 'firebaseUrl', 'firebase_url', 'firebaseURL', 'databaseURL', 'databaseUrl', 'endpoint', 'host');
+    var key = get('key', 'k', 'apiKey', 'api_key', 'auth', 'secret', 'credential', 'token');
+    var exp = get('expiresAt', 'expiry', 'e', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
+    var dev = get('deviceId', 'device_id', 'device', 'dev', 'ref', 'reference');
     var parts = [url, key, exp, dev].filter(Boolean);
     if (parts.length) return parts.join('|||');
     var fbs = strings.filter(function (s) { return FIREBASE_HOST_RE.test(s); });
@@ -808,7 +830,62 @@
           notes: notes.concat(['Decoded a VANTAGE share link (Base64 + XOR-encoded JSON).'])
         };
       }
+      // Some panels put URL-encoded or plain JSON straight into s=.
+      if (/^[[{]/.test(sVal)) {
+        var jsonSPath = jsonToPayload(sVal, []);
+        if (jsonSPath) {
+          return {
+            payload: jsonSPath,
+            sourceType: 's-param',
+            encoding: 'json',
+            decodeCount: 0,
+            notes: notes.concat(['Parsed a JSON payload from the s= value.'])
+          };
+        }
+      }
       notes = notes.concat(['Found an s= value, but it did not decode as readable Base64.']);
+    }
+
+    // Alternative share parameters (d=, data=, payload=, token=, …).
+    var aliasValue = extractAliasParam(token);
+    if (aliasValue) {
+      var aliasNotes = notes.concat(['Found a share parameter value.']);
+      if (/^[[{]/.test(aliasValue)) {
+        var aliasJson = jsonToPayload(aliasValue, []);
+        if (aliasJson) {
+          return { payload: aliasJson, sourceType: 'share-param', encoding: 'json', decodeCount: 0, notes: aliasNotes.concat(['Parsed a JSON payload from the share parameter.']) };
+        }
+      }
+      if (isPipeDelimitedPayload(aliasValue)) {
+        return { payload: aliasValue, sourceType: 'share-param', encoding: 'plain', decodeCount: 0, notes: aliasNotes.concat(['Share parameter contains a single-pipe payload.']) };
+      }
+      if (/^https?:\/\//i.test(aliasValue)) {
+        return { payload: aliasValue, sourceType: 'share-param', encoding: 'plain', decodeCount: 0, notes: aliasNotes.concat(['Share parameter contains a URL.']) };
+      }
+      var aliasDecoded = decodeChain(aliasValue);
+      if (aliasDecoded.ok) {
+        return {
+          payload: aliasDecoded.text,
+          sourceType: 'share-param',
+          encoding: aliasDecoded.encoding,
+          decodeCount: aliasDecoded.count,
+          notes: aliasNotes.concat(['Decoded share parameter using ' + aliasDecoded.encoding + '.'])
+        };
+      }
+      var aliasVantage = decodeVantageShare(aliasValue);
+      if (aliasVantage) {
+        return { payload: aliasVantage.payload, sourceType: 'share-param', encoding: 'XOR + Base64', decodeCount: 1, notes: aliasNotes.concat(['Decoded a VANTAGE share value from a share parameter.']) };
+      }
+      var aliasMerged = decodeMergedShare(aliasValue);
+      if (aliasMerged) {
+        return {
+          payload: aliasMerged.payload,
+          sourceType: 'share-param',
+          encoding: 'URL-encoded JSON + Base64',
+          decodeCount: 1,
+          notes: aliasNotes.concat(['Decoded merged connections from a share parameter.'])
+        };
+      }
     }
 
     // A delimited payload can begin with https://, so detect it before plain URLs.
@@ -911,7 +988,7 @@
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
     var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share' || sourceType === 'merged-share';
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share' || sourceType === 'merged-share' || sourceType === 'share-param';
     var isVantagePermanent = sourceType === 'vantage-share' && /"expiry"\s*:\s*"Permanent"/i.test(text);
     var hasNoExpiryByDesign = isVantagePermanent || sourceType === 'merged-share';
     if (sourceType === 'merged-share') {
@@ -1006,7 +1083,8 @@
     if (isPipeDelimitedPayload(t)) return true;
     if (API_KEY_SINGLE_RE.test(t)) return true;
     if (extractSParam(t)) return true;
-    if (/^s=/i.test(t) && t.length > 8) return true;
+    if (extractAliasParam(t)) return true;
+    if (/^[sm]=/i.test(t) && t.length > 8) return true;
     if (t.length >= 12 && looksLikeBase64(t)) {
       if (decodeVantageShare(t)) return true;
       if (decodeMergedShare(t)) return true;

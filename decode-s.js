@@ -249,7 +249,7 @@ function extractSFromUrl(url) {
     var u = new URL(text);
     var direct = u.searchParams.get('s');
     if (direct) return direct;
-    var names = ['s', 'encoded', 'token', 'payload'];
+    var names = ['s', 'd', 'data', 'encoded', 'token', 'payload', 'share', 'link'];
     for (var i = 0; i < names.length; i++) {
       var v = u.searchParams.get(names[i]);
       if (v) return v;

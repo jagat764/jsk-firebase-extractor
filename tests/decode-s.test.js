@@ -470,5 +470,50 @@ test('exports the merged decoder', function () {
   assert.strictEqual(D.decodeMergedShare('hello'), null);
 });
 
+console.log('\nAlternative share parameters');
+
+test('decodes a Base64 payload from d=', function () {
+  var url = 'https://x.netlify.app/?d=' + b64(BASE + '|KEY|1793105515015');
+  var r = D.inspect(url, { now: NOW });
+  assert.strictEqual(r.status, 'EXPIRED');
+  assert.strictEqual(r.sourceType, 'share-param');
+  assert.strictEqual(r.primaryUrl.url, BASE);
+});
+
+test('decodes URL-encoded JSON from data=', function () {
+  var json = JSON.stringify({ u: BASE, k: 'KEY123' });
+  var r = D.inspect('https://x.netlify.app/?data=' + encodeURIComponent(json), { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.sourceType, 'share-param');
+  assert.strictEqual(r.primaryUrl.url, BASE);
+  assert.strictEqual(r.credential.value, 'KEY123');
+});
+
+test('decodes URL-encoded JSON directly in s=', function () {
+  var json = JSON.stringify({ url: BASE, key: 'KEY123' });
+  var r = D.inspect('https://x.netlify.app/?s=' + encodeURIComponent(json), { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.primaryUrl.url, BASE);
+});
+
+test('decodes a VANTAGE value carried in token=', function () {
+  var value = VANTAGE_URL.split('?s=')[1];
+  var r = D.inspect('https://x.netlify.app/?token=' + value, { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.sourceType, 'share-param');
+  assert.strictEqual(r.primaryUrl.url, VANTAGE_FB);
+});
+
+test('leaves an undecodable token= as a plain URL', function () {
+  var r = D.inspect('https://x.netlify.app/?token=abcdefghijklmnop', { now: NOW });
+  assert.strictEqual(r.status, 'INVALID');
+});
+
+test('bulk mode recognises d= links', function () {
+  var out = D.processBulk('https://x.netlify.app/?d=' + b64(BASE + '|K'), { now: NOW });
+  assert.strictEqual(out.results[0].sourceType, 'share-param');
+  assert.strictEqual(out.results[0].primaryUrl.url, BASE);
+});
+
 console.log('\n' + passed + ' passed, ' + failed + ' failed\n');
 if (failed) process.exitCode = 1;
