@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Offline Firebase share-link decoder. Decode ?s= Base64 links, break down the payload, and extract Firebase URLs in single or bulk mode.">
+  <title> Noob_JSK — Firebase Link Decoder</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23fbbf24'/%3E%3Cstop offset='1' stop-color='%23f97316'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23070b14'/%3E%3Cpath d='M26 20h-5a9 9 0 0 0 0 18h5M38 26h5a9 9 0 0 1 0 18h-5M25 35h14' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='29' r='3.5' fill='url(%23g)'/%3E%3Ccircle cx='43' cy='35' r='3.5' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/tailwind.css">
+  <script src="decoder.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="min-h-screen bg-[#070b14] text-slate-100 antialiased">
+  <!-- Offline icon sprite -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="hidden" aria-hidden="true">
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.8 13.2h6.4L10.5 22l8.7-11.7h-6.6L13 2Z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L14.7 3.6a2.5 2.5 0 0 0-4.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m16 7 3 3"/><path d="m19 4 2 2"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m3 17 9 5 9-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-2.2 2.8"/><path d="M6.5 7.7C3.6 9.4 2 12 2 12s3.6 6 10 6a10.6 10.6 0 0 0 4-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 19v-4h-4"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-single" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12h6M12 9v6"/></symbol>
+  </svg>
+
+  <!-- Ambient background -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -left-32 -top-40 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl"></div>
+    <div class="absolute -right-40 top-40 h-[28rem] w-[28rem] rounded-full bg-orange-600/10 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-indigo-500/5 blur-3xl"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.06),transparent_45%)]"></div>
+  </div>
+
+  <!-- App bar -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#070b14]/85 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 shadow-lg shadow-orange-500/20">
+        <svg class="h-5 w-5" aria-hidden="true"><use href="#i-link"></use></svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-base font-extrabold tracking-tight text-white sm:text-lg">Noob_JSK</h1>
+        <p class="truncate text-[11px] font-medium text-slate-400 sm:text-xs">Firebase link decoder &amp; bulk inspector</p>
+      </div>
+      <span class="hidden items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 sm:inline-flex">
+        <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-shield"></use></svg>
+        100% offline
+      </span>
+      <span class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-400">v1.0</span>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:pb-16 sm:pt-8">
+    <!-- Hero -->
+    <section class="mb-5 sm:mb-7">
+      <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-200">
+        <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-bolt"></use></svg>
+        Fast local parsing · no Firebase requests
+      </div>
+      <h2 class="text-balance text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
+        Decode Firebase links <span class="bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">in seconds.</span>
+      </h2>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+        Paste a <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> share URL, a raw Base64 value, a decoded payload, or a direct Firebase URL. Get a clean breakdown and extract every endpoint — one link or thousands.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-400">
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Base64 + URL-safe</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Double encoding</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Expiry check</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">CSV / JSON export</span>
+      </div>
+    </section>
+
+    <!-- Input card -->
+    <section class="glass overflow-hidden" aria-labelledby="input-heading">
+      <div class="border-b border-white/10 p-4 sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 id="input-heading" class="text-sm font-bold text-white sm:text-base">Decode input</h2>
+            <p class="mt-0.5 text-xs text-slate-400">Choose one link or paste a whole list.</p>
+          </div>
+          <div class="flex rounded-2xl border border-white/10 bg-slate-950/60 p-1" role="tablist" aria-label="Input mode">
+            <button id="tab-single" type="button" role="tab" aria-selected="true" aria-controls="panel-single" class="segment-btn segment-active">
+              <svg class="h-4 w-4" aria-hidden="true"><use href="#i-single"></use></svg>
+              Single
+            </button>
+            <button id="tab-bulk" type="button" role="tab" aria-selected="false" aria-controls="panel-bulk" class="segment-btn">
+              <svg class="h-4 w-4" aria-hidden="true"><use href="#i-list"></use></svg>
+              Bulk
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Single panel -->
+      <div id="panel-single" role="tabpanel" aria-labelledby="tab-single" class="p-4 sm:p-5">
+        <label for="single-input" class="label">One encoded URL or payload</label>
+        <textarea id="single-input" rows="4" class="input-shell min-h-[112px] resize-y font-mono text-[13px] sm:text-sm" placeholder="https://example.net/?s=BASE64_VALUE&#10;or paste the raw Base64 / decoded payload / Firebase URL here" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" enterkeyhint="done"></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="btn-decode" type="button" class="btn-primary flex-1 sm:flex-none">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+            Decode &amp; inspect
+          </button>
+          <button id="btn-paste" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-paste"></use></svg>
+            Paste
+          </button>
+          <button id="btn-sample" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+            Sample
+          </button>
+          <button id="btn-clear-single" type="button" class="btn-ghost">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-trash"></use></svg>
+            Clear
+          </button>
+        </div>
+        <p class="mt-3 flex items-start gap-1.5 text-xs leading-5 text-slate-500">
+          <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true"><use href="#i-info"></use></svg>
+          Live decode turns on automatically after you stop typing. Credentials are masked by default.
+        </p>
+      </div>
+
+      <!-- Bulk panel -->
+      <div id="panel-bulk" role="tabpanel" aria-labelledby="tab-bulk" class="hidden p-4 sm:p-5">
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <label for="bulk-input" class="label mb-0">Mass URLs / mixed text</label>
+          <span id="bulk-count" class="font-mono text-[11px] text-slate-500">0 lines</span>
+        </div>
+        <textarea id="bulk-input" rows="8" class="input-shell min-h-[180px] resize-y font-mono text-[13px] sm:text-sm" placeholder="One item per line. Full links, raw Base64, decoded payloads, JSON, CSV rows and markdown links all work.&#10;&#10;https://example.net/?s=BASE64_VALUE&#10;https://example.net/?s=ANOTHER_VALUE" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></textarea>
+
+        <div id="dropzone" class="mt-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-slate-950/40 px-4 py-5 text-center transition hover:border-amber-400/40 hover:bg-amber-400/[0.04]">
+          <svg class="h-6 w-6 text-slate-500" aria-hidden="true"><use href="#i-upload"></use></svg>
+          <p class="text-xs text-slate-400">Drop <span class="font-semibold text-slate-300">.txt / .csv / .json / .log</span> files here</p>
+          <button id="btn-choose-file" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-file"></use></svg>
+            Choose files
+          </button>
+          <input id="file-input" type="file" accept=".txt,.csv,.json,.log,text/plain,application/json,text/csv" multiple class="hidden">
+          <p id="file-status" class="hidden text-[11px] font-medium text-emerald-300"></p>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="btn-check" type="button" class="btn-primary flex-1 sm:flex-none">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+            Check all
+          </button>
+          <button id="btn-dedupe" type="button" aria-pressed="true" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-layers"></use></svg>
+            Hide duplicates: <span id="dedupe-state">ON</span>
+          </button>
+          <button id="btn-sample-bulk" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+            Samples
+          </button>
+          <button id="btn-reveal" type="button" aria-pressed="false" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-eye"></use></svg>
+            Reveal keys: <span>OFF</span>
+          </button>
+          <button id="btn-clear-bulk" type="button" class="btn-ghost">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-trash"></use></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Single result -->
+    <section id="single-result" class="mt-5 hidden animate-fade-up" aria-live="polite" aria-labelledby="single-result-heading">
+      <div class="glass p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span id="single-status-dot" class="h-2.5 w-2.5 rounded-full bg-slate-400"></span>
+            <h2 id="single-result-heading" class="text-sm font-bold text-white sm:text-base">Decoded result</h2>
+            <span id="single-status-pill" class="rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset">—</span>
+          </div>
+          <span id="single-timing" class="font-mono text-[11px] text-slate-500">—</span>
+        </div>
+        <p id="single-description" class="mt-2 text-xs leading-5 text-slate-400">—</p>
+      </div>
+
+      <div id="single-cards" class="mt-3 grid gap-3 sm:grid-cols-2"></div>
+      <div id="single-breakdown" class="glass mt-3 p-4 sm:p-5"></div>
+      <div id="single-raw" class="glass mt-3 p-4 sm:p-5"></div>
+    </section>
+
+    <!-- Bulk result -->
+    <section id="bulk-result" class="mt-5 hidden animate-fade-up" aria-live="polite" aria-labelledby="bulk-result-heading">
+      <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="bulk-result-heading" class="text-sm font-bold text-white sm:text-base">Bulk inspection</h2>
+          <p id="bulk-timing" class="mt-0.5 font-mono text-[11px] text-slate-500">—</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-copy-urls" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-copy"></use></svg>
+            Copy URLs
+          </button>
+          <button id="btn-copy-json" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-copy"></use></svg>
+            Copy JSON
+          </button>
+          <button id="btn-download-csv" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-download"></use></svg>
+            CSV
+          </button>
+          <button id="btn-download-json" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-download"></use></svg>
+            JSON
+          </button>
+        </div>
+      </div>
+
+      <div id="bulk-stats" class="grid grid-cols-2 gap-2.5 sm:grid-cols-4"></div>
+
+      <div class="glass mt-3 p-3 sm:p-4">
+        <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2.5 focus-within:border-amber-400/50 focus-within:ring-4 focus-within:ring-amber-400/10">
+          <svg class="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true"><use href="#i-search"></use></svg>
+          <input id="bulk-search" type="search" class="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500" placeholder="Search URL, project, payload…" autocomplete="off">
+          <button id="btn-clear-search" type="button" class="hidden rounded-lg p-1 text-slate-500 hover:bg-white/5 hover:text-slate-200" aria-label="Clear search">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-x"></use></svg>
+          </button>
+        </div>
+        <div id="filter-chips" class="scrollbar-thin mt-3 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter results"></div>
+      </div>
+
+      <p id="bulk-truncated" class="mt-3 hidden rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs font-medium text-amber-200"></p>
+      <div id="bulk-list" class="mt-3 space-y-3"></div>
+      <button id="btn-load-more" type="button" class="btn-secondary mt-3 hidden w-full">
+        <svg class="h-4 w-4" aria-hidden="true"><use href="#i-refresh"></use></svg>
+        Load more
+      </button>
+    </section>
+
+    <!-- How it works -->
+    <section class="glass mt-5 overflow-hidden">
+      <details class="group">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm font-bold text-white sm:p-5">
+          <span class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-amber-300" aria-hidden="true"><use href="#i-info"></use></svg>
+            How these links are structured
+          </span>
+          <svg class="h-4 w-4 text-slate-500 transition group-open:rotate-90" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </summary>
+        <div class="border-t border-white/10 p-4 text-xs leading-6 text-slate-400 sm:p-5 sm:text-sm">
+          <p>The <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> parameter is UTF-8 Base64. After decoding it usually looks like this:</p>
+          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+
+https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123</pre>
+          <ul class="mt-3 space-y-1.5">
+            <li>• <span class="font-semibold text-slate-300">Field 1</span> — Firebase / Realtime Database endpoint.</li>
+            <li>• <span class="font-semibold text-slate-300">Field 2</span> — database secret, API key, or short credential.</li>
+            <li>• <span class="font-semibold text-slate-300">Field 3</span> — expiry timestamp in milliseconds (10-digit seconds also work).</li>
+            <li>• <span class="font-semibold text-slate-300">Field 4+</span> — optional device ID or reference.</li>
+          </ul>
+          <p class="mt-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] p-3 text-emerald-200">
+            <strong class="font-bold">Privacy:</strong> everything runs in your browser. The tool never connects to a Firebase database, never tests credentials, and never uploads pasted data.
+          </p>
+        </div>
+      </details>
+    </section>
+
+    <footer class="mt-6 pb-2 text-center text-[11px] leading-5 text-slate-600">
+      Noob_JSK Decoder v1.0 · Static Tailwind CSS · Built for Android screens<br>
+      No network requests, no analytics, no dependencies at runtime.
+    </footer>
+  </main>
+
+  <!-- Mobile sticky action -->
+  <div class="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#070b14]/95 px-4 pt-3 backdrop-blur-xl sm:hidden">
+    <button id="bottom-action" type="button" class="btn-primary w-full">
+      <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+      <span id="bottom-action-label">Decode link</span>
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-24 left-1/2 z-50 hidden -translate-x-1/2 items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/95 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-xl sm:bottom-6" role="status" aria-live="polite">
+    <svg id="toast-icon" class="h-4 w-4 text-emerald-300" aria-hidden="true"><use href="#i-check"></use></svg>
+    <span id="toast-text">Done</span>
+  </div>
+</body>
+</html>

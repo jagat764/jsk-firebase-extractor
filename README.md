@@ -1,0 +1,124 @@
+# LinkScope — Firebase Link Decoder
+
+A fast, Android-friendly, **100% offline** web tool that decodes `?s=`-style encoded share links, breaks the payload into labelled fields, and extracts Firebase URLs. Supports **single links** and **mass/bulk lists**.
+
+> **Privacy / safety:** this is a text parser only. It never fetches a Firebase database, never tests credentials, never sends pasted data anywhere, and makes no network requests at runtime.
+
+---
+
+## What it decodes
+
+The `s=` parameter in the example links is UTF-8 Base64. Decoded, it has this shape:
+
+```text
+FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+
+https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123
+```
+
+The tool also accepts:
+
+- full share URLs such as `https://example.net/?s=BASE64`
+- raw `s=BASE64` values
+- raw Base64 (standard **and** URL-safe `-` / `_`)
+- double Base64 encoding
+- already-decoded `|||` payloads
+- direct Firebase URLs, with or without `https://`
+- JSON objects and URL-encoded query-string payloads
+- `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop
+- markdown links, comma-separated lists, and mixed text
+
+Recognised Firebase hosts include `*.firebaseio.com`, `*.firebasedatabase.app`, `*.firebaseapp.com`, `*.firebasestorage.app`, `*.appspot.com`, and `*.web.app`.
+
+---
+
+## Features
+
+- **Single mode** — live decode, status badge, project ID, host type, region, expiry, masked credential, device ID, full field breakdown, raw payload, copy buttons.
+- **Bulk mode** — check thousands of items, duplicate detection, search, status filters, progressive rendering, unique-URL count, API-key count.
+- **Exports** — copy unique Firebase URLs, copy JSON, download CSV, download JSON.
+- **Android-first UI** — 44px+ tap targets, 16px inputs to prevent zoom, safe-area bottom bar, no hover-only actions, reduced-motion support, high-contrast dark theme.
+- **Tailwind CSS file** — `assets/tailwind.css` is a compiled, local Tailwind build. No CDN, no external fonts, no runtime dependencies.
+- **Standalone build** — `standalone.html` inlines the CSS and JS into one file for easy sharing.
+
+---
+
+## Quick start
+
+```bash
+cd firebase-link-decoder
+npm install          # only needed to rebuild CSS
+npm start            # serves on http://0.0.0.0:8080
+```
+
+Or simply open `index.html` / `standalone.html` directly in a browser — both work without a server.
+
+### Rebuild after editing styles or scripts
+
+```bash
+npm run build        # recompiles Tailwind CSS and regenerates standalone.html
+npm test             # runs the decoder test suite
+```
+
+---
+
+## File structure
+
+```text
+firebase-link-decoder/
+├── index.html              # Main app (uses local CSS + JS files)
+├── standalone.html         # Generated single-file version
+├── assets/
+│   └── tailwind.css        # Compiled Tailwind CSS (local file)
+├── src/
+│   └── input.css           # Tailwind source + component styles
+├── tailwind.config.js      # Tailwind content scanning config
+├── decoder.js              # Pure JS decoding core (browser + Node/UMD)
+├── app.js                  # UI logic (no network calls)
+├── server.js               # Zero-dependency static preview server
+├── build-standalone.js     # Generates standalone.html
+├── sample-links.txt        # The two example links from the request
+├── tests/
+│   └── decoder.test.js     # 15 unit tests
+├── netlify.toml            # Optional Netlify deploy config + CSP
+└── README.md
+```
+
+---
+
+## Deploy to Netlify
+
+The project is a static site. A ready-to-upload package is provided as **`linkscope-netlify.zip`** (see `DEPLOY.md` for the full walkthrough).
+
+Fastest path — **Netlify Drop**:
+
+1. Download `linkscope-netlify.zip` and extract it, or drag the ZIP directly.
+2. Go to <https://app.netlify.com/drop>.
+3. Drag the extracted `linkscope-netlify/` folder (or the ZIP) onto the drop zone.
+4. Netlify gives you a live `https://<name>.netlify.app` URL immediately.
+5. Sign in / claim the site so it persists, then optionally rename it or add a custom domain.
+
+For a Git-connected deploy, import the repository into Netlify. Build command: `echo 'LinkScope uses prebuilt static assets — no build step required.'`; publish directory: `.` (already set in `netlify.toml`).
+
+`netlify.toml` is included with:
+
+- `connect-src 'none'` in the CSP — enforces the no-network promise.
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: no-referrer`
+- no external asset dependencies.
+
+After deployment you can share links like `https://<your-site>.netlify.app/?s=<BASE64>` and the tool auto-decodes them on load.
+
+---
+
+## Notes
+
+- Credentials and API keys are **masked by default**. Use **Reveal keys** to show them.
+- Bulk mode reports unrecognised lines as `Invalid` so nothing is silently skipped.
+- `Hide duplicates` removes repeated Firebase endpoints from the visible list while still counting them in stats. The **Duplicates** filter still shows them.
+- Large inputs are capped at 1.5 MB / 20,000 items to keep the UI responsive.
+- Expiry timestamps support milliseconds, seconds, and ISO date strings.
+
+---
+
+Built for Arena.ai Agent Mode. No analytics, no telemetry, no tracking.

@@ -1,0 +1,2156 @@
+<!-- Generated file. Run `npm run build` after editing index.html, app.js, decoder.js or src/input.css. -->
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#070b14">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Offline Firebase share-link decoder. Decode ?s= Base64 links, break down the payload, and extract Firebase URLs in single or bulk mode.">
+  <title> Noob_JSK — Firebase Link Decoder (standalone)</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23fbbf24'/%3E%3Cstop offset='1' stop-color='%23f97316'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%23070b14'/%3E%3Cpath d='M26 20h-5a9 9 0 0 0 0 18h5M38 26h5a9 9 0 0 1 0 18h-5M25 35h14' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='21' cy='29' r='3.5' fill='url(%23g)'/%3E%3Ccircle cx='43' cy='35' r='3.5' fill='url(%23g)'/%3E%3C/svg%3E">
+  <style>
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,Noto Sans Devanagari,sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}:root{color-scheme:dark}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{margin:0;min-height:100%;background-color:#070b14;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,Noto Sans Devanagari,sans-serif;overscroll-behavior-y:contain;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}*{-webkit-tap-highlight-color:transparent}button,input,select,textarea{font:inherit}input,textarea{font-size:16px}::-moz-selection{background:rgba(251,191,36,.3);color:#fff}::selection{background:rgba(251,191,36,.3);color:#fff}:focus-visible{outline:2px solid rgba(251,191,36,.75);outline-offset:2px}.glass{border-radius:1.5rem;border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:rgba(15,23,42,.7);--tw-shadow:0 24px 70px -35px rgba(0,0,0,.95);--tw-shadow-colored:0 24px 70px -35px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.glass-soft{border-radius:1rem;border-width:1px;border-color:hsla(0,0%,100%,.07);background-color:hsla(0,0%,100%,.035)}.input-shell{width:100%;border-radius:1rem;border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:rgba(2,6,23,.6);padding:.75rem 1rem;font-size:1rem;line-height:1.5rem;--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1));outline:2px solid transparent;outline-offset:2px;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.input-shell::-moz-placeholder{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.input-shell::placeholder{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.input-shell:focus{border-color:rgba(251,191,36,.5);--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000);--tw-ring-color:rgba(251,191,36,.1)}.\!btn{display:inline-flex;min-height:44px;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.\!btn:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.\!btn:disabled{cursor:not-allowed;opacity:.5}.btn{display:inline-flex;min-height:44px;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.btn:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.btn:disabled{cursor:not-allowed;opacity:.5}.btn-primary{display:inline-flex;min-height:44px;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.btn-primary:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.btn-primary:disabled{cursor:not-allowed;opacity:.5}.btn-primary{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops));--tw-gradient-from:#fbbf24 var(--tw-gradient-from-position);--tw-gradient-to:rgba(251,191,36,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to);--tw-gradient-to:#f97316 var(--tw-gradient-to-position);--tw-text-opacity:1;color:rgb(2 6 23/var(--tw-text-opacity,1));--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow);--tw-shadow-color:rgba(249,115,22,.2);--tw-shadow:var(--tw-shadow-colored)}.btn-primary:hover{--tw-gradient-from:#fcd34d var(--tw-gradient-from-position);--tw-gradient-to:rgba(252,211,77,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to);--tw-gradient-to:#fb923c var(--tw-gradient-to-position)}.btn-secondary{display:inline-flex;min-height:44px;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.btn-secondary:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.btn-secondary:disabled{cursor:not-allowed;opacity:.5}.btn-secondary{border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:hsla(0,0%,100%,.05);--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.btn-secondary:hover{background-color:hsla(0,0%,100%,.1)}.btn-ghost{display:inline-flex;min-height:44px;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.btn-ghost:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.btn-ghost:disabled{cursor:not-allowed;opacity:.5}.btn-ghost{padding-left:.75rem;padding-right:.75rem;--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.btn-ghost:hover{background-color:hsla(0,0%,100%,.05);--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.mini-btn{display:inline-flex;min-height:36px;touch-action:manipulation;align-items:center;justify-content:center;gap:.375rem;border-radius:.5rem;border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:hsla(0,0%,100%,.05);padding:.375rem .75rem;font-size:.75rem;line-height:1rem;font-weight:600;--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1));transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.mini-btn:hover{background-color:hsla(0,0%,100%,.1);--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.mini-btn:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.chip{display:inline-flex;min-height:36px;flex-shrink:0;touch-action:manipulation;align-items:center;gap:.375rem;border-radius:9999px;border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:hsla(0,0%,100%,.05);padding:.375rem .875rem;font-size:.75rem;line-height:1rem;font-weight:600;--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1));transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.chip:hover{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.chip:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.chip-active{border-color:rgba(251,191,36,.3);background-color:rgba(251,191,36,.15);--tw-text-opacity:1;color:rgb(253 230 138/var(--tw-text-opacity,1))}.label{margin-bottom:.5rem;display:block;line-height:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:rgb(148 163 184/var(--tw-text-opacity,1))}.code-block,.label{font-size:.75rem;--tw-text-opacity:1}.code-block{max-height:16rem;overflow:auto;border-radius:1rem;border-width:1px;border-color:hsla(0,0%,100%,.1);background-color:rgba(2,6,23,.8);padding:1rem;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;line-height:1.5rem;color:rgb(203 213 225/var(--tw-text-opacity,1));scrollbar-width:thin;scrollbar-color:rgba(148,163,184,.35) transparent}.code-block::-webkit-scrollbar{width:6px;height:6px}.code-block::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(148,163,184,.35)}.code-block::-webkit-scrollbar-track{background:transparent}.segment-btn{display:inline-flex;min-height:42px;flex:1 1 0%;touch-action:manipulation;align-items:center;justify-content:center;gap:.5rem;border-radius:.75rem;padding:.5rem 1rem;font-size:.875rem;line-height:1.25rem;font-weight:600;--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1));transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.segment-btn:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.segment-active{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1));--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1));--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow);--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000);--tw-ring-color:hsla(0,0%,100%,.1)}.pointer-events-none{pointer-events:none}.\!visible{visibility:visible!important}.visible{visibility:visible}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0}.inset-x-0{left:0;right:0}.-left-32{left:-8rem}.-right-40{right:-10rem}.-top-40{top:-10rem}.bottom-0{bottom:0}.bottom-24{bottom:6rem}.left-1\/2{left:50%}.left-1\/3{left:33.333333%}.top-0{top:0}.top-40{top:10rem}.-z-10{z-index:-10}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.mb-0{margin-bottom:0}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-5{margin-bottom:1.25rem}.mt-0\.5{margin-top:.125rem}.mt-1{margin-top:.25rem}.mt-1\.5{margin-top:.375rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.block{display:block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-10{height:2.5rem}.h-11{height:2.75rem}.h-2{height:.5rem}.h-2\.5{height:.625rem}.h-3\.5{height:.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-80{height:20rem}.h-96{height:24rem}.h-\[28rem\]{height:28rem}.max-h-64{max-height:16rem}.min-h-\[112px\]{min-height:112px}.min-h-\[180px\]{min-height:180px}.min-h-\[36px\]{min-height:36px}.min-h-\[42px\]{min-height:42px}.min-h-\[44px\]{min-height:44px}.min-h-screen{min-height:100vh}.w-10{width:2.5rem}.w-11{width:2.75rem}.w-2{width:.5rem}.w-2\.5{width:.625rem}.w-3\.5{width:.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-80{width:20rem}.w-96{width:24rem}.w-\[28rem\]{width:28rem}.w-full{width:100%}.min-w-0{min-width:0}.max-w-2xl{max-width:42rem}.max-w-5xl{max-width:64rem}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%}.-translate-x-1\/2,.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.touch-manipulation{touch-action:manipulation}.resize-y{resize:vertical}.list-none{list-style-type:none}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:.25rem}.gap-1\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\.5{gap:.625rem}.gap-3{gap:.75rem}.space-y-1>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.25rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.25rem*var(--tw-space-y-reverse))}.space-y-1\.5>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.375rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.375rem*var(--tw-space-y-reverse))}.space-y-2>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.5rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.5rem*var(--tw-space-y-reverse))}.space-y-3>:not([hidden])~:not([hidden]){--tw-space-y-reverse:0;margin-top:calc(.75rem*(1 - var(--tw-space-y-reverse)));margin-bottom:calc(.75rem*var(--tw-space-y-reverse))}.divide-y>:not([hidden])~:not([hidden]){--tw-divide-y-reverse:0;border-top-width:calc(1px*(1 - var(--tw-divide-y-reverse)));border-bottom-width:calc(1px*var(--tw-divide-y-reverse))}.divide-white\/5>:not([hidden])~:not([hidden]){border-color:hsla(0,0%,100%,.05)}.self-start{align-self:flex-start}.overflow-auto{overflow:auto}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.whitespace-pre-wrap{white-space:pre-wrap}.text-wrap{text-wrap:wrap}.text-balance{text-wrap:balance}.break-words{overflow-wrap:break-word}.break-all{word-break:break-all}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}.border-amber-400\/15{border-color:rgba(251,191,36,.15)}.border-amber-400\/20{border-color:rgba(251,191,36,.2)}.border-amber-400\/30{border-color:rgba(251,191,36,.3)}.border-amber-400\/50{border-color:rgba(251,191,36,.5)}.border-emerald-400\/15{border-color:rgba(52,211,153,.15)}.border-emerald-400\/20{border-color:rgba(52,211,153,.2)}.border-white\/10{border-color:hsla(0,0%,100%,.1)}.border-white\/15{border-color:hsla(0,0%,100%,.15)}.border-white\/5{border-color:hsla(0,0%,100%,.05)}.border-white\/\[0\.07\]{border-color:hsla(0,0%,100%,.07)}.bg-\[\#070b14\]{--tw-bg-opacity:1;background-color:rgb(7 11 20/var(--tw-bg-opacity,1))}.bg-\[\#070b14\]\/85{background-color:rgba(7,11,20,.85)}.bg-\[\#070b14\]\/95{background-color:rgba(7,11,20,.95)}.bg-amber-400{--tw-bg-opacity:1;background-color:rgb(251 191 36/var(--tw-bg-opacity,1))}.bg-amber-400\/10{background-color:rgba(251,191,36,.1)}.bg-amber-400\/15{background-color:rgba(251,191,36,.15)}.bg-amber-400\/\[0\.06\]{background-color:rgba(251,191,36,.06)}.bg-amber-500\/10{background-color:rgba(245,158,11,.1)}.bg-amber-500\/15{background-color:rgba(245,158,11,.15)}.bg-black\/25{background-color:rgba(0,0,0,.25)}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153/var(--tw-bg-opacity,1))}.bg-emerald-400\/10{background-color:rgba(52,211,153,.1)}.bg-emerald-400\/\[0\.06\]{background-color:rgba(52,211,153,.06)}.bg-emerald-500\/15{background-color:rgba(16,185,129,.15)}.bg-indigo-400\/10{background-color:rgba(129,140,248,.1)}.bg-indigo-500\/5{background-color:rgba(99,102,241,.05)}.bg-orange-400\/10{background-color:rgba(251,146,60,.1)}.bg-orange-600\/10{background-color:rgba(234,88,12,.1)}.bg-rose-400{--tw-bg-opacity:1;background-color:rgb(251 113 133/var(--tw-bg-opacity,1))}.bg-rose-400\/10{background-color:rgba(251,113,133,.1)}.bg-rose-500\/15{background-color:rgba(244,63,94,.15)}.bg-sky-400\/10{background-color:rgba(56,189,248,.1)}.bg-slate-400{--tw-bg-opacity:1;background-color:rgb(148 163 184/var(--tw-bg-opacity,1))}.bg-slate-400\/10{background-color:rgba(148,163,184,.1)}.bg-slate-500\/15{background-color:rgba(100,116,139,.15)}.bg-slate-800{--tw-bg-opacity:1;background-color:rgb(30 41 59/var(--tw-bg-opacity,1))}.bg-slate-900\/70{background-color:rgba(15,23,42,.7)}.bg-slate-900\/95{background-color:rgba(15,23,42,.95)}.bg-slate-950\/40{background-color:rgba(2,6,23,.4)}.bg-slate-950\/50{background-color:rgba(2,6,23,.5)}.bg-slate-950\/60{background-color:rgba(2,6,23,.6)}.bg-slate-950\/80{background-color:rgba(2,6,23,.8)}.bg-transparent{background-color:transparent}.bg-white\/5{background-color:hsla(0,0%,100%,.05)}.bg-\[radial-gradient\(circle_at_50\%_0\%\2c rgba\(251\2c 191\2c 36\2c 0\.06\)\2c transparent_45\%\)\]{background-image:radial-gradient(circle at 50% 0,rgba(251,191,36,.06),transparent 45%)}.bg-gradient-to-br{background-image:linear-gradient(to bottom right,var(--tw-gradient-stops))}.bg-gradient-to-r{background-image:linear-gradient(to right,var(--tw-gradient-stops))}.from-amber-300{--tw-gradient-from:#fcd34d var(--tw-gradient-from-position);--tw-gradient-to:rgba(252,211,77,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.from-amber-400{--tw-gradient-from:#fbbf24 var(--tw-gradient-from-position);--tw-gradient-to:rgba(251,191,36,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.to-orange-400{--tw-gradient-to:#fb923c var(--tw-gradient-to-position)}.to-orange-500{--tw-gradient-to:#f97316 var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.p-1{padding:.25rem}.p-2\.5{padding:.625rem}.p-3{padding:.75rem}.p-3\.5{padding:.875rem}.p-4{padding:1rem}.p-8{padding:2rem}.px-1\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-3\.5{padding-left:.875rem;padding-right:.875rem}.px-4{padding-left:1rem;padding-right:1rem}.py-0\.5{padding-top:.125rem;padding-bottom:.125rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-2{padding-top:.5rem;padding-bottom:.5rem}.py-2\.5{padding-top:.625rem;padding-bottom:.625rem}.py-3{padding-top:.75rem;padding-bottom:.75rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.pb-1{padding-bottom:.25rem}.pb-2{padding-bottom:.5rem}.pb-32{padding-bottom:8rem}.pt-2{padding-top:.5rem}.pt-3{padding-top:.75rem}.pt-6{padding-top:1.5rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[9px\]{font-size:9px}.text-base{font-size:1rem;line-height:1.5rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-4{line-height:1rem}.leading-5{line-height:1.25rem}.leading-6{line-height:1.5rem}.leading-tight{line-height:1.25}.tracking-\[0\.12em\]{letter-spacing:.12em}.tracking-\[0\.14em\]{letter-spacing:.14em}.tracking-tight{letter-spacing:-.025em}.tracking-wide{letter-spacing:.025em}.tracking-wider{letter-spacing:.05em}.text-amber-100\/80{color:hsla(48,96%,89%,.8)}.text-amber-200{--tw-text-opacity:1;color:rgb(253 230 138/var(--tw-text-opacity,1))}.text-amber-200\/80{color:hsla(48,97%,77%,.8)}.text-amber-300{--tw-text-opacity:1;color:rgb(252 211 77/var(--tw-text-opacity,1))}.text-emerald-200{--tw-text-opacity:1;color:rgb(167 243 208/var(--tw-text-opacity,1))}.text-emerald-300{--tw-text-opacity:1;color:rgb(110 231 183/var(--tw-text-opacity,1))}.text-indigo-300{--tw-text-opacity:1;color:rgb(165 180 252/var(--tw-text-opacity,1))}.text-orange-300{--tw-text-opacity:1;color:rgb(253 186 116/var(--tw-text-opacity,1))}.text-rose-300{--tw-text-opacity:1;color:rgb(253 164 175/var(--tw-text-opacity,1))}.text-sky-300{--tw-text-opacity:1;color:rgb(125 211 252/var(--tw-text-opacity,1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.text-slate-200{--tw-text-opacity:1;color:rgb(226 232 240/var(--tw-text-opacity,1))}.text-slate-300{--tw-text-opacity:1;color:rgb(203 213 225/var(--tw-text-opacity,1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184/var(--tw-text-opacity,1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105/var(--tw-text-opacity,1))}.text-slate-950{--tw-text-opacity:1;color:rgb(2 6 23/var(--tw-text-opacity,1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.shadow-2xl{--tw-shadow:0 25px 50px -12px rgba(0,0,0,.25);--tw-shadow-colored:0 25px 50px -12px var(--tw-shadow-color)}.shadow-2xl,.shadow-\[0_24px_70px_-35px_rgba\(0\2c 0\2c 0\2c 0\.95\)\]{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-\[0_24px_70px_-35px_rgba\(0\2c 0\2c 0\2c 0\.95\)\]{--tw-shadow:0 24px 70px -35px rgba(0,0,0,.95);--tw-shadow-colored:0 24px 70px -35px var(--tw-shadow-color)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color),0 4px 6px -4px var(--tw-shadow-color)}.shadow-lg,.shadow-sm{box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgba(0,0,0,.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color)}.shadow-orange-500\/20{--tw-shadow-color:rgba(249,115,22,.2);--tw-shadow:var(--tw-shadow-colored)}.outline-none{outline:2px solid transparent;outline-offset:2px}.outline{outline-style:solid}.ring-1{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.ring-inset{--tw-ring-inset:inset}.ring-amber-400\/20{--tw-ring-color:rgba(251,191,36,.2)}.ring-amber-400\/30{--tw-ring-color:rgba(251,191,36,.3)}.ring-emerald-400\/20{--tw-ring-color:rgba(52,211,153,.2)}.ring-emerald-400\/30{--tw-ring-color:rgba(52,211,153,.3)}.ring-indigo-400\/20{--tw-ring-color:rgba(129,140,248,.2)}.ring-orange-400\/20{--tw-ring-color:rgba(251,146,60,.2)}.ring-rose-400\/20{--tw-ring-color:rgba(251,113,133,.2)}.ring-rose-400\/30{--tw-ring-color:rgba(251,113,133,.3)}.ring-sky-400\/20{--tw-ring-color:rgba(56,189,248,.2)}.ring-slate-400\/20{--tw-ring-color:rgba(148,163,184,.2)}.ring-slate-400\/30{--tw-ring-color:rgba(148,163,184,.3)}.blur-3xl{--tw-blur:blur(64px)}.blur-3xl,.grayscale{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.grayscale{--tw-grayscale:grayscale(100%)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-xl{--tw-backdrop-blur:blur(24px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.scrollbar-thin{scrollbar-width:thin;scrollbar-color:rgba(148,163,184,.35) transparent}.scrollbar-thin::-webkit-scrollbar{width:6px;height:6px}.scrollbar-thin::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(148,163,184,.35)}.scrollbar-thin::-webkit-scrollbar-track{background:transparent}.animate-fade-up{animation:fade-up .28s cubic-bezier(.22,1,.36,1) both}.safe-bottom{padding-bottom:calc(.75rem + env(safe-area-inset-bottom))}.text-balance{text-wrap:balance}@keyframes fade-up{0%{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,:after,:before{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}.placeholder\:text-slate-500::-moz-placeholder{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.placeholder\:text-slate-500::placeholder{--tw-text-opacity:1;color:rgb(100 116 139/var(--tw-text-opacity,1))}.focus-within\:border-amber-400\/50:focus-within{border-color:rgba(251,191,36,.5)}.focus-within\:ring-4:focus-within{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.focus-within\:ring-amber-400\/10:focus-within{--tw-ring-color:rgba(251,191,36,.1)}.hover\:border-amber-400\/40:hover{border-color:rgba(251,191,36,.4)}.hover\:bg-amber-400\/\[0\.04\]:hover{background-color:rgba(251,191,36,.04)}.hover\:bg-white\/10:hover{background-color:hsla(0,0%,100%,.1)}.hover\:bg-white\/5:hover{background-color:hsla(0,0%,100%,.05)}.hover\:from-amber-300:hover{--tw-gradient-from:#fcd34d var(--tw-gradient-from-position);--tw-gradient-to:rgba(252,211,77,0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)}.hover\:text-slate-100:hover{--tw-text-opacity:1;color:rgb(241 245 249/var(--tw-text-opacity,1))}.hover\:text-slate-200:hover{--tw-text-opacity:1;color:rgb(226 232 240/var(--tw-text-opacity,1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.focus\:border-amber-400\/50:focus{border-color:rgba(251,191,36,.5)}.focus\:ring-4:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow),var(--tw-ring-shadow),var(--tw-shadow,0 0 #0000)}.active\:scale-\[0\.98\]:active{--tw-scale-x:0.98;--tw-scale-y:0.98;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.disabled\:cursor-not-allowed:disabled{cursor:not-allowed}.group[open] .group-open\:rotate-90{--tw-rotate:90deg;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@media (min-width:640px){.sm\:bottom-6{bottom:1.5rem}.sm\:mb-7{margin-bottom:1.75rem}.sm\:inline-flex{display:inline-flex}.sm\:hidden{display:none}.sm\:w-44{width:11rem}.sm\:flex-none{flex:none}.sm\:shrink-0{flex-shrink:0}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-start{align-items:flex-start}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:gap-4{gap:1rem}.sm\:p-4{padding:1rem}.sm\:p-5{padding:1.25rem}.sm\:pb-16{padding-bottom:4rem}.sm\:pt-8{padding-top:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}.sm\:text-base{font-size:1rem;line-height:1.5rem}.sm\:text-lg{font-size:1.125rem;line-height:1.75rem}.sm\:text-sm{font-size:.875rem;line-height:1.25rem}.sm\:text-xs{font-size:.75rem;line-height:1rem}}
+  </style>
+</head>
+<body class="min-h-screen bg-[#070b14] text-slate-100 antialiased">
+  <!-- Offline icon sprite -->
+  <svg xmlns="http://www.w3.org/2000/svg" class="hidden" aria-hidden="true">
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.8 13.2h6.4L10.5 22l8.7-11.7h-6.6L13 2Z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+    <symbol id="i-database" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L14.7 3.6a2.5 2.5 0 0 0-4.4 0Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.2-8.2"/><path d="m16 7 3 3"/><path d="m19 4 2 2"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12"/><path d="m7 11 5 5 5-5"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m3 17 9 5 9-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3Z"/><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h4"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-2.2 2.8"/><path d="M6.5 7.7C3.6 9.4 2 12 2 12s3.6 6 10 6a10.6 10.6 0 0 0 4-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-4L4 9"/><path d="M4 5v4h4"/><path d="M4 13a8 8 0 0 0 14 4l2-2"/><path d="M20 19v-4h-4"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-single" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12h6M12 9v6"/></symbol>
+  </svg>
+
+  <!-- Ambient background -->
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute -left-32 -top-40 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl"></div>
+    <div class="absolute -right-40 top-40 h-[28rem] w-[28rem] rounded-full bg-orange-600/10 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-indigo-500/5 blur-3xl"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.06),transparent_45%)]"></div>
+  </div>
+
+  <!-- App bar -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#070b14]/85 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-950 shadow-lg shadow-orange-500/20">
+        <svg class="h-5 w-5" aria-hidden="true"><use href="#i-link"></use></svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <h1 class="truncate text-base font-extrabold tracking-tight text-white sm:text-lg">Noob_JSK</h1>
+        <p class="truncate text-[11px] font-medium text-slate-400 sm:text-xs">Firebase link decoder &amp; bulk inspector</p>
+      </div>
+      <span class="hidden items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 sm:inline-flex">
+        <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-shield"></use></svg>
+        100% offline
+      </span>
+      <span class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-400">v1.0</span>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:pb-16 sm:pt-8">
+    <!-- Hero -->
+    <section class="mb-5 sm:mb-7">
+      <div class="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-200">
+        <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-bolt"></use></svg>
+        Fast local parsing · no Firebase requests
+      </div>
+      <h2 class="text-balance text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl">
+        Decode Firebase links <span class="bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">in seconds.</span>
+      </h2>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+        Paste a <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> share URL, a raw Base64 value, a decoded payload, or a direct Firebase URL. Get a clean breakdown and extract every endpoint — one link or thousands.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-semibold text-slate-400">
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Base64 + URL-safe</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Double encoding</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">Expiry check</span>
+        <span class="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5">CSV / JSON export</span>
+      </div>
+    </section>
+
+    <!-- Input card -->
+    <section class="glass overflow-hidden" aria-labelledby="input-heading">
+      <div class="border-b border-white/10 p-4 sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 id="input-heading" class="text-sm font-bold text-white sm:text-base">Decode input</h2>
+            <p class="mt-0.5 text-xs text-slate-400">Choose one link or paste a whole list.</p>
+          </div>
+          <div class="flex rounded-2xl border border-white/10 bg-slate-950/60 p-1" role="tablist" aria-label="Input mode">
+            <button id="tab-single" type="button" role="tab" aria-selected="true" aria-controls="panel-single" class="segment-btn segment-active">
+              <svg class="h-4 w-4" aria-hidden="true"><use href="#i-single"></use></svg>
+              Single
+            </button>
+            <button id="tab-bulk" type="button" role="tab" aria-selected="false" aria-controls="panel-bulk" class="segment-btn">
+              <svg class="h-4 w-4" aria-hidden="true"><use href="#i-list"></use></svg>
+              Bulk
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Single panel -->
+      <div id="panel-single" role="tabpanel" aria-labelledby="tab-single" class="p-4 sm:p-5">
+        <label for="single-input" class="label">One encoded URL or payload</label>
+        <textarea id="single-input" rows="4" class="input-shell min-h-[112px] resize-y font-mono text-[13px] sm:text-sm" placeholder="https://example.net/?s=BASE64_VALUE&#10;or paste the raw Base64 / decoded payload / Firebase URL here" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" enterkeyhint="done"></textarea>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="btn-decode" type="button" class="btn-primary flex-1 sm:flex-none">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+            Decode &amp; inspect
+          </button>
+          <button id="btn-paste" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-paste"></use></svg>
+            Paste
+          </button>
+          <button id="btn-sample" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+            Sample
+          </button>
+          <button id="btn-clear-single" type="button" class="btn-ghost">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-trash"></use></svg>
+            Clear
+          </button>
+        </div>
+        <p class="mt-3 flex items-start gap-1.5 text-xs leading-5 text-slate-500">
+          <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true"><use href="#i-info"></use></svg>
+          Live decode turns on automatically after you stop typing. Credentials are masked by default.
+        </p>
+      </div>
+
+      <!-- Bulk panel -->
+      <div id="panel-bulk" role="tabpanel" aria-labelledby="tab-bulk" class="hidden p-4 sm:p-5">
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <label for="bulk-input" class="label mb-0">Mass URLs / mixed text</label>
+          <span id="bulk-count" class="font-mono text-[11px] text-slate-500">0 lines</span>
+        </div>
+        <textarea id="bulk-input" rows="8" class="input-shell min-h-[180px] resize-y font-mono text-[13px] sm:text-sm" placeholder="One item per line. Full links, raw Base64, decoded payloads, JSON, CSV rows and markdown links all work.&#10;&#10;https://example.net/?s=BASE64_VALUE&#10;https://example.net/?s=ANOTHER_VALUE" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="done"></textarea>
+
+        <div id="dropzone" class="mt-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-slate-950/40 px-4 py-5 text-center transition hover:border-amber-400/40 hover:bg-amber-400/[0.04]">
+          <svg class="h-6 w-6 text-slate-500" aria-hidden="true"><use href="#i-upload"></use></svg>
+          <p class="text-xs text-slate-400">Drop <span class="font-semibold text-slate-300">.txt / .csv / .json / .log</span> files here</p>
+          <button id="btn-choose-file" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-file"></use></svg>
+            Choose files
+          </button>
+          <input id="file-input" type="file" accept=".txt,.csv,.json,.log,text/plain,application/json,text/csv" multiple class="hidden">
+          <p id="file-status" class="hidden text-[11px] font-medium text-emerald-300"></p>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="btn-check" type="button" class="btn-primary flex-1 sm:flex-none">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+            Check all
+          </button>
+          <button id="btn-dedupe" type="button" aria-pressed="true" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-layers"></use></svg>
+            Hide duplicates: <span id="dedupe-state">ON</span>
+          </button>
+          <button id="btn-sample-bulk" type="button" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-sparkles"></use></svg>
+            Samples
+          </button>
+          <button id="btn-reveal" type="button" aria-pressed="false" class="btn-secondary">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-eye"></use></svg>
+            Reveal keys: <span>OFF</span>
+          </button>
+          <button id="btn-clear-bulk" type="button" class="btn-ghost">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-trash"></use></svg>
+            Clear
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Single result -->
+    <section id="single-result" class="mt-5 hidden animate-fade-up" aria-live="polite" aria-labelledby="single-result-heading">
+      <div class="glass p-4 sm:p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span id="single-status-dot" class="h-2.5 w-2.5 rounded-full bg-slate-400"></span>
+            <h2 id="single-result-heading" class="text-sm font-bold text-white sm:text-base">Decoded result</h2>
+            <span id="single-status-pill" class="rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset">—</span>
+          </div>
+          <span id="single-timing" class="font-mono text-[11px] text-slate-500">—</span>
+        </div>
+        <p id="single-description" class="mt-2 text-xs leading-5 text-slate-400">—</p>
+      </div>
+
+      <div id="single-cards" class="mt-3 grid gap-3 sm:grid-cols-2"></div>
+      <div id="single-breakdown" class="glass mt-3 p-4 sm:p-5"></div>
+      <div id="single-raw" class="glass mt-3 p-4 sm:p-5"></div>
+    </section>
+
+    <!-- Bulk result -->
+    <section id="bulk-result" class="mt-5 hidden animate-fade-up" aria-live="polite" aria-labelledby="bulk-result-heading">
+      <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 id="bulk-result-heading" class="text-sm font-bold text-white sm:text-base">Bulk inspection</h2>
+          <p id="bulk-timing" class="mt-0.5 font-mono text-[11px] text-slate-500">—</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btn-copy-urls" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-copy"></use></svg>
+            Copy URLs
+          </button>
+          <button id="btn-copy-json" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-copy"></use></svg>
+            Copy JSON
+          </button>
+          <button id="btn-download-csv" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-download"></use></svg>
+            CSV
+          </button>
+          <button id="btn-download-json" type="button" class="mini-btn">
+            <svg class="h-3.5 w-3.5" aria-hidden="true"><use href="#i-download"></use></svg>
+            JSON
+          </button>
+        </div>
+      </div>
+
+      <div id="bulk-stats" class="grid grid-cols-2 gap-2.5 sm:grid-cols-4"></div>
+
+      <div class="glass mt-3 p-3 sm:p-4">
+        <div class="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2.5 focus-within:border-amber-400/50 focus-within:ring-4 focus-within:ring-amber-400/10">
+          <svg class="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true"><use href="#i-search"></use></svg>
+          <input id="bulk-search" type="search" class="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500" placeholder="Search URL, project, payload…" autocomplete="off">
+          <button id="btn-clear-search" type="button" class="hidden rounded-lg p-1 text-slate-500 hover:bg-white/5 hover:text-slate-200" aria-label="Clear search">
+            <svg class="h-4 w-4" aria-hidden="true"><use href="#i-x"></use></svg>
+          </button>
+        </div>
+        <div id="filter-chips" class="scrollbar-thin mt-3 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter results"></div>
+      </div>
+
+      <p id="bulk-truncated" class="mt-3 hidden rounded-2xl border border-amber-400/20 bg-amber-400/10 p-3 text-xs font-medium text-amber-200"></p>
+      <div id="bulk-list" class="mt-3 space-y-3"></div>
+      <button id="btn-load-more" type="button" class="btn-secondary mt-3 hidden w-full">
+        <svg class="h-4 w-4" aria-hidden="true"><use href="#i-refresh"></use></svg>
+        Load more
+      </button>
+    </section>
+
+    <!-- How it works -->
+    <section class="glass mt-5 overflow-hidden">
+      <details class="group">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm font-bold text-white sm:p-5">
+          <span class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-amber-300" aria-hidden="true"><use href="#i-info"></use></svg>
+            How these links are structured
+          </span>
+          <svg class="h-4 w-4 text-slate-500 transition group-open:rotate-90" aria-hidden="true"><use href="#i-chevron"></use></svg>
+        </summary>
+        <div class="border-t border-white/10 p-4 text-xs leading-6 text-slate-400 sm:p-5 sm:text-sm">
+          <p>The <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">?s=</code> parameter is UTF-8 Base64. After decoding it usually looks like this:</p>
+          <pre class="code-block mt-3 whitespace-pre-wrap break-all">FIREBASE_URL ||| CREDENTIAL ||| EXPIRY_MS ||| OPTIONAL_DEVICE_ID
+
+https://project-default-rtdb.firebaseio.com ||| KEY ||| 1793105515015 ||| device-123</pre>
+          <ul class="mt-3 space-y-1.5">
+            <li>• <span class="font-semibold text-slate-300">Field 1</span> — Firebase / Realtime Database endpoint.</li>
+            <li>• <span class="font-semibold text-slate-300">Field 2</span> — database secret, API key, or short credential.</li>
+            <li>• <span class="font-semibold text-slate-300">Field 3</span> — expiry timestamp in milliseconds (10-digit seconds also work).</li>
+            <li>• <span class="font-semibold text-slate-300">Field 4+</span> — optional device ID or reference.</li>
+          </ul>
+          <p class="mt-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] p-3 text-emerald-200">
+            <strong class="font-bold">Privacy:</strong> everything runs in your browser. The tool never connects to a Firebase database, never tests credentials, and never uploads pasted data.
+          </p>
+        </div>
+      </details>
+    </section>
+
+    <footer class="mt-6 pb-2 text-center text-[11px] leading-5 text-slate-600">
+      Noob_JSK Decoder v1.0 · Static Tailwind CSS · Built for Android screens<br>
+      No network requests, no analytics, no dependencies at runtime.
+    </footer>
+  </main>
+
+  <!-- Mobile sticky action -->
+  <div class="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#070b14]/95 px-4 pt-3 backdrop-blur-xl sm:hidden">
+    <button id="bottom-action" type="button" class="btn-primary w-full">
+      <svg class="h-4 w-4" aria-hidden="true"><use href="#i-bolt"></use></svg>
+      <span id="bottom-action-label">Decode link</span>
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="pointer-events-none fixed bottom-24 left-1/2 z-50 hidden -translate-x-1/2 items-center gap-2 rounded-2xl border border-white/10 bg-slate-900/95 px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-xl sm:bottom-6" role="status" aria-live="polite">
+    <svg id="toast-icon" class="h-4 w-4 text-emerald-300" aria-hidden="true"><use href="#i-check"></use></svg>
+    <span id="toast-text">Done</span>
+  </div>
+  <script>
+/*!
+ * LinkScope Decoder Core — v1.0.0
+ * 100% local text parsing. No fetch(), no network calls, no telemetry.
+ * Works in browsers and Node.js (UMD).
+ */
+(function (root, factory) {
+  'use strict';
+  var api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.LinkScopeDecoder = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  var VERSION = '1.0.0';
+  var MAX_DECODE_ROUNDS = 3;
+  var MAX_RESOLVE_DEPTH = 4;
+  var DEFAULT_MAX_CHARS = 2000000;
+  var DEFAULT_MAX_CANDIDATES = 20000;
+
+  var FIREBASE_HOST_RE = /(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:firebaseio\.com|firebasedatabase\.app|firebaseapp\.com|firebasestorage\.app|appspot\.com|web\.app)/i;
+  var FIREBASE_URL_PATTERN = '(?:https?:\\/\\/)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9-]+)*\\.(?:firebaseio\\.com|firebasedatabase\\.app|firebaseapp\\.com|firebasestorage\\.app|appspot\\.com|web\\.app)(?:\\/[^\\s"\'<>`|\\\\^{}\\[\\]]*)?';
+  var API_KEY_RE = /AIza[0-9A-Za-z_-]{35}/gi;
+  var API_KEY_SINGLE_RE = /AIza[0-9A-Za-z_-]{35}/i;
+  var ENCODED_CONTAINER_RE = /(?:[?&]|^|[\s,;({[|&])s\s*[:=]\s*["']?[A-Za-z0-9%+/=_-]{8,}/i;
+
+  var SOURCE_LABELS = {
+    'full-url': 'Full share URL',
+    's-param': 's= parameter',
+    'raw-base64': 'Raw Base64',
+    'firebase-url': 'Direct Firebase URL',
+    payload: 'Delimited payload',
+    url: 'Plain URL',
+    json: 'JSON payload',
+    query: 'Query-string payload',
+    plain: 'Plain text',
+    empty: 'Empty input'
+  };
+
+  var STATUS_META = {
+    VALID: { label: 'Valid', severity: 'success', description: 'Firebase endpoint extracted successfully.' },
+    EXPIRED: { label: 'Expired', severity: 'danger', description: 'The link expiry timestamp is in the past.' },
+    NO_FIREBASE: { label: 'No Firebase URL', severity: 'warning', description: 'Text decoded, but no Firebase endpoint was found.' },
+    INVALID: { label: 'Not recognized', severity: 'muted', description: 'Could not decode or identify a Firebase link.' }
+  };
+
+  function nowMs() {
+    return typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+  }
+
+  function cleanToken(value) {
+    var s = String(value == null ? '' : value);
+    s = s.replace(/^[\uFEFF\u200B-\u200D\u2060]+/, '');
+    s = s.trim();
+    s = s.replace(/^["'`]+|["'`]+$/g, '');
+    // Keep balanced JSON/array wrappers; only strip prose/markdown punctuation.
+    var first = s.charAt(0);
+    var last = s.charAt(s.length - 1);
+    var balancedWrapper = (first === '{' && last === '}') || (first === '[' && last === ']');
+    if (!balancedWrapper) s = s.replace(/[.,;:!?)\]}>]+$/g, '');
+    return s.trim();
+  }
+
+  function decodeSValue(value) {
+    var s = String(value == null ? '' : value).trim();
+    s = s.replace(/^["']|["']$/g, '');
+    var first = s.charAt(0);
+    var last = s.charAt(s.length - 1);
+    var balancedWrapper = (first === '{' && last === '}') || (first === '[' && last === ']');
+    if (!balancedWrapper) s = s.replace(/[.,;:!?)\]}>]+$/g, '');
+    // In query strings "+" often means a literal Base64 "+", not a space.
+    s = s.replace(/\+/g, '%2B');
+    try { s = decodeURIComponent(s); } catch (e) { /* keep original */ }
+    // If a previous layer decoded "+" into a space, restore it for Base64.
+    s = s.replace(/\s/g, '+');
+    return s;
+  }
+
+  function normalizeBase64(value) {
+    var s = decodeSValue(value);
+    s = s.replace(/\s/g, '');
+    s = s.replace(/-/g, '+').replace(/_/g, '/');
+    s = s.replace(/[.,;:!?)\]}>]+$/g, '');
+    if (!s || s.length < 8) return null;
+    if (!/^[A-Za-z0-9+/=]+$/.test(s)) return null;
+    s = s.replace(/=+$/, '');
+    var mod = s.length % 4;
+    if (mod === 1) return null;
+    if (mod) s += '='.repeat(4 - mod);
+    return s;
+  }
+
+  function looksLikeBase64(value) {
+    return !!normalizeBase64(value);
+  }
+
+  function base64ToBytes(s) {
+    try {
+      if (typeof atob === 'function') {
+        var bin = atob(s);
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes;
+      }
+      if (typeof Buffer !== 'undefined') return new Uint8Array(Buffer.from(s, 'base64'));
+    } catch (e) { /* invalid */ }
+    return null;
+  }
+
+  function bytesToUtf8(bytes) {
+    if (typeof TextDecoder !== 'undefined') {
+      try { return new TextDecoder('utf-8', { fatal: false }).decode(bytes); } catch (e) { /* fallback */ }
+    }
+    var s = '';
+    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    try { return decodeURIComponent(escape(s)); } catch (e) { return s; }
+  }
+
+  function isPrintableText(text) {
+    var t = String(text || '');
+    if (!t) return false;
+    var bad = 0;
+    var replacement = 0;
+    for (var i = 0; i < t.length; i++) {
+      var c = t.charCodeAt(i);
+      if (c === 0xfffd) replacement++;
+      else if (c < 32 && c !== 9 && c !== 10 && c !== 13) bad++;
+    }
+    var ratio = (t.length - bad - replacement) / t.length;
+    return ratio >= 0.9 && replacement / t.length < 0.03;
+  }
+
+  function looksLikePayload(text) {
+    var t = String(text || '').trim();
+    if (!t || !isPrintableText(t)) return false;
+    return /firebase|https?:\/\/|\|\||AIza|expires|expiry|projectId|deviceId|auth=|databaseURL/i.test(t);
+  }
+
+  function decodeChain(value) {
+    var raw = String(value == null ? '' : value);
+    var current = normalizeBase64(raw);
+    var rounds = [];
+    var last = raw;
+    var urlSafe = /[-_]/.test(raw) || /%2D|%5F/i.test(raw);
+    if (!current) return { ok: false, text: last, count: 0, encoding: 'plain', rounds: rounds };
+    for (var i = 0; i < MAX_DECODE_ROUNDS; i++) {
+      var bytes = base64ToBytes(current);
+      if (!bytes || !bytes.length) break;
+      var text = bytesToUtf8(bytes);
+      if (!isPrintableText(text)) break;
+      rounds.push({ encoding: urlSafe && i === 0 ? 'URL-safe Base64' : 'Base64', chars: current.length });
+      last = text;
+      if (looksLikePayload(text)) {
+        return { ok: true, text: text, count: i + 1, encoding: rounds.map(function (r) { return r.encoding; }).join(' → '), rounds: rounds };
+      }
+      var next = normalizeBase64(text);
+      if (!next || next === current) break;
+      current = next;
+      urlSafe = /[-_]/.test(text);
+    }
+    return {
+      ok: looksLikePayload(last) && rounds.length > 0,
+      text: last,
+      count: rounds.length,
+      encoding: rounds.map(function (r) { return r.encoding; }).join(' → ') || 'plain',
+      rounds: rounds
+    };
+  }
+
+  function extractSParam(value) {
+    var raw = String(value == null ? '' : value);
+    var patterns = [
+      /[?&]s=([^&#\s"']+)/i,
+      /^s=([^&#\s"']+)/i,
+      /[#&]s=([^&#\s"']+)/i,
+      /(?:^|[\s,;({[|&])["']?s["']?\s*[:=]\s*["']?([A-Za-z0-9%+/=_-]{8,})/i
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+      var m = raw.match(patterns[i]);
+      if (m && m[1]) {
+        var cleaned = cleanToken(m[1]);
+        if (cleaned && cleaned.length >= 8) return decodeSValue(cleaned);
+      }
+    }
+    return null;
+  }
+
+  function looksLikeEncodedContainer(text) {
+    return ENCODED_CONTAINER_RE.test(String(text || ''));
+  }
+
+  function firebaseUrlRegex() {
+    return new RegExp(FIREBASE_URL_PATTERN, 'gi');
+  }
+
+  function inferProjectId(host) {
+    var label = String(host || '').toLowerCase().split('.')[0] || '';
+    label = label.replace(/-default-rtdb$/i, '').replace(/-rtdb$/i, '').replace(/-default$/i, '');
+    return label || String(host || '');
+  }
+
+  function canonicalFirebaseUrl(url) {
+    try {
+      var u = new URL(url);
+      u.protocol = 'https:';
+      u.hostname = u.hostname.toLowerCase();
+      u.hash = '';
+      ['auth', 'key', 'token', 'apiKey', 'api_key', 'access_token'].forEach(function (p) { u.searchParams.delete(p); });
+      var path = u.pathname.replace(/\/+$/, '');
+      return u.origin + path + (u.searchParams.toString() ? '?' + u.searchParams.toString() : '');
+    } catch (e) {
+      return String(url || '').trim().toLowerCase().replace(/\/+$/, '');
+    }
+  }
+
+  function describeFirebaseUrl(url) {
+    var u = new URL(url);
+    var host = u.hostname.toLowerCase();
+    var type = 'Firebase project';
+    var region = 'Global / default';
+    if (/\.firebaseio\.com$/i.test(host)) {
+      type = 'Realtime Database (classic)';
+      region = 'us-central1';
+    } else if (/\.firebasedatabase\.app$/i.test(host)) {
+      type = 'Realtime Database';
+      var parts = host.split('.');
+      region = parts.length > 3 ? parts[1] : 'us-central1';
+    } else if (/\.firebaseapp\.com$/i.test(host)) {
+      type = 'Firebase Hosting / App';
+    } else if (/\.firebasestorage\.app$/i.test(host)) {
+      type = 'Cloud Storage';
+    } else if (/\.appspot\.com$/i.test(host)) {
+      type = 'App Engine / Storage';
+    } else if (/\.web\.app$/i.test(host)) {
+      type = 'Firebase Hosting';
+    }
+    var path = u.pathname && u.pathname !== '/' ? u.pathname.replace(/\/+$/, '') : '';
+    var baseUrl = u.origin;
+    var cleanUrl = baseUrl + path;
+    var queryKeys = [];
+    try { queryKeys = Array.from(u.searchParams.keys()); } catch (e) { /* noop */ }
+    var sensitiveKeys = ['auth', 'key', 'token', 'apiKey', 'api_key', 'access_token'];
+    var hasSensitiveQuery = sensitiveKeys.some(function (k) {
+      try { return u.searchParams.has(k); } catch (e) { return false; }
+    });
+    return {
+      url: cleanUrl,
+      baseUrl: baseUrl,
+      rawUrl: u.toString(),
+      canonical: canonicalFirebaseUrl(cleanUrl),
+      host: host,
+      projectId: inferProjectId(host),
+      type: type,
+      region: region,
+      path: path || '/',
+      protocol: u.protocol.replace(':', ''),
+      isSecure: u.protocol === 'https:',
+      queryKeys: queryKeys,
+      hasSensitiveQuery: hasSensitiveQuery
+    };
+  }
+
+  function extractFirebaseUrls(text) {
+    var out = [];
+    var seen = Object.create(null);
+    var re = firebaseUrlRegex();
+    var m;
+    var source = String(text == null ? '' : text);
+    while ((m = re.exec(source)) !== null) {
+      var raw = cleanToken(m[0]);
+      if (!raw) continue;
+      // Avoid matching a host fragment inside percent-encoded text (e.g. "%2Fproject").
+      var before = m.index > 0 ? source.charAt(m.index - 1) : '';
+      if (before && /[A-Za-z0-9%]/.test(before) && !/^https?:\/\//i.test(raw)) continue;
+      if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+      try {
+        var info = describeFirebaseUrl(raw);
+        if (!seen[info.canonical]) {
+          seen[info.canonical] = true;
+          out.push(info);
+        }
+      } catch (e) { /* ignore malformed match */ }
+    }
+    return out;
+  }
+
+  function extractApiKeys(text) {
+    var matches = String(text == null ? '' : text).match(API_KEY_RE) || [];
+    return Array.from(new Set(matches));
+  }
+
+  function toTimestampMs(value) {
+    var str = String(value == null ? '' : value).trim();
+    if (!/^\d{9,17}$/.test(str)) return null;
+    var n = Number(str);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    if (n > 1e15) n = Math.floor(n / 1000); // microseconds → ms
+    if (n > 1e11) return n;                 // already ms
+    if (n > 1e9) return n * 1000;           // seconds → ms
+    return null;
+  }
+
+  function humanizeKey(key) {
+    return String(key || '')
+      .replace(/[_-]+/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/^./, function (c) { return c.toUpperCase(); })
+      .trim();
+  }
+
+  function humanizeDuration(ms) {
+    var abs = Math.abs(ms);
+    var units = [
+      ['year', 31536000000],
+      ['month', 2592000000],
+      ['day', 86400000],
+      ['hour', 3600000],
+      ['minute', 60000],
+      ['second', 1000]
+    ];
+    for (var i = 0; i < units.length; i++) {
+      if (abs >= units[i][1]) {
+        var val = Math.floor(abs / units[i][1]);
+        return val + ' ' + units[i][0] + (val === 1 ? '' : 's');
+      }
+    }
+    return 'less than a second';
+  }
+
+  function relativeTime(ms, now) {
+    var diff = ms - now;
+    if (Math.abs(diff) < 60000) return diff >= 0 ? 'in less than a minute' : 'just now';
+    var h = humanizeDuration(Math.abs(diff));
+    return diff >= 0 ? 'in ' + h : h + ' ago';
+  }
+
+  function maskSecret(value) {
+    var s = String(value == null ? '' : value);
+    if (!s) return '';
+    if (/^AIza/i.test(s) && s.length > 12) return s.slice(0, 6) + '••••' + s.slice(-4);
+    if (s.length <= 3) return '•••';
+    if (s.length <= 8) return s[0] + '••••' + s[s.length - 1];
+    return s.slice(0, 3) + '••••' + s.slice(-3);
+  }
+
+  function classifySegment(value, index, isDelimited) {
+    var v = String(value == null ? '' : value);
+    if (FIREBASE_HOST_RE.test(v)) return { kind: 'url', label: index === 0 ? 'Firebase endpoint' : 'URL', sensitive: false };
+    if (/^https?:\/\//i.test(v)) return { kind: 'url', label: 'URL', sensitive: false };
+    if (API_KEY_SINGLE_RE.test(v)) return { kind: 'apiKey', label: 'API key', sensitive: true };
+    if (/^\d{9,17}$/.test(v)) return { kind: 'timestamp', label: isDelimited && index === 2 ? 'Expiry timestamp' : 'Timestamp', sensitive: false };
+    if (/^\d{4}-\d{2}-\d{2}/.test(v)) return { kind: 'date', label: 'Date / expiry', sensitive: false };
+    if (isDelimited && index === 1) return { kind: 'credential', label: 'Credential / key', sensitive: true };
+    if (isDelimited && index === 3) return { kind: 'deviceId', label: 'Device ID / reference', sensitive: false };
+    if (/^[a-f0-9]{8,}$/i.test(v)) return { kind: 'deviceId', label: 'Device ID / hash', sensitive: false };
+    if (/^(true|false|null|undefined)$/i.test(v)) return { kind: 'literal', label: 'Value', sensitive: false };
+    return { kind: 'text', label: isDelimited ? 'Field ' + (index + 1) : 'Value', sensitive: false };
+  }
+
+  function getCaseInsensitive(obj, key) {
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return undefined;
+    var target = String(key).toLowerCase();
+    var keys = Object.keys(obj);
+    for (var i = 0; i < keys.length; i++) {
+      if (keys[i].toLowerCase() === target) return obj[keys[i]];
+    }
+    return undefined;
+  }
+
+  function flattenStrings(value, out) {
+    out = out || [];
+    if (typeof value === 'string') out.push(value);
+    else if (Array.isArray(value)) value.forEach(function (v) { flattenStrings(v, out); });
+    else if (value && typeof value === 'object') Object.keys(value).forEach(function (k) { flattenStrings(value[k], out); });
+    return out;
+  }
+
+  function splitPayloadSegments(payload) {
+    var text = String(payload == null ? '' : payload).trim();
+    if (!text) return [];
+    if (/\|\|/.test(text)) {
+      return text.split(/\s*\|{2,}\s*/).map(function (v, i) {
+        var c = classifySegment(v, i, true);
+        return { index: i, label: c.label, value: v, kind: c.kind, sensitive: c.sensitive };
+      });
+    }
+    if (/^[[{]/.test(text)) {
+      try {
+        var obj = JSON.parse(text);
+        if (obj && typeof obj === 'object') {
+          var entries = Array.isArray(obj)
+            ? obj.map(function (v, i) { return ['item' + (i + 1), v]; })
+            : Object.keys(obj).map(function (k) { return [k, obj[k]]; });
+          return entries.map(function (entry, i) {
+            var k = entry[0];
+            var v = typeof entry[1] === 'object' ? JSON.stringify(entry[1]) : String(entry[1] == null ? '' : entry[1]);
+            var c = classifySegment(v, i, false);
+            return {
+              index: i,
+              label: humanizeKey(k) || c.label,
+              value: v,
+              kind: c.kind,
+              sensitive: c.sensitive || /key|secret|token|auth|pass/i.test(k)
+            };
+          });
+        }
+      } catch (e) { /* not JSON */ }
+    }
+    if (!/^https?:\/\//i.test(text) && text.indexOf('=') !== -1 && /(?:^|&)(?:url|firebase|key|auth|expires|expiry|device)/i.test(text)) {
+      try {
+        var params = new URLSearchParams(text.replace(/^\?/, ''));
+        var pairs = Array.from(params.entries());
+        if (pairs.length) {
+          return pairs.map(function (pair, i) {
+            var c = classifySegment(pair[1], i, false);
+            return {
+              index: i,
+              label: humanizeKey(pair[0]),
+              value: pair[1],
+              kind: c.kind,
+              sensitive: c.sensitive || /key|secret|token|auth|pass/i.test(pair[0])
+            };
+          });
+        }
+      } catch (e) { /* noop */ }
+    }
+    var single = classifySegment(text, 0, false);
+    return [{ index: 0, label: single.label, value: text, kind: single.kind, sensitive: single.sensitive }];
+  }
+
+  function findCredential(segments, apiKeys, primaryUrl, text) {
+    if (apiKeys.length) {
+      return { value: apiKeys[0], masked: maskSecret(apiKeys[0]), type: 'Firebase Web API key', source: 'pattern match' };
+    }
+    var seg = segments.find(function (s) { return (s.kind === 'credential' || s.kind === 'apiKey') && s.value; });
+    if (seg) {
+      return {
+        value: seg.value,
+        masked: maskSecret(seg.value),
+        type: seg.kind === 'apiKey' ? 'Firebase Web API key' : 'Credential / database secret',
+        source: 'field ' + (seg.index + 1)
+      };
+    }
+    if (primaryUrl && primaryUrl.hasSensitiveQuery) {
+      try {
+        var u = new URL(primaryUrl.rawUrl);
+        var auth = u.searchParams.get('auth') || u.searchParams.get('key') || u.searchParams.get('access_token');
+        if (auth) return { value: auth, masked: maskSecret(auth), type: 'URL auth parameter', source: 'query string' };
+      } catch (e) { /* noop */ }
+    }
+    var m = String(text || '').match(/(?:[?&]auth=)([^&\s|]+)/i);
+    if (m) {
+      var value = decodeURIComponent(m[1]);
+      return { value: value, masked: maskSecret(value), type: 'Auth parameter', source: 'raw text' };
+    }
+    return null;
+  }
+
+  function findExpiry(payload, segments) {
+    var i;
+    for (i = 0; i < segments.length; i++) {
+      var seg = segments[i];
+      if (seg.kind === 'timestamp' || seg.kind === 'date' || /^(expires at|expiry|expires|valid until|timestamp|time|date)$/i.test(seg.label)) {
+        var ms = toTimestampMs(seg.value);
+        if (!ms) {
+          var parsed = Date.parse(seg.value);
+          if (!Number.isNaN(parsed)) ms = parsed;
+        }
+        if (ms) return { raw: seg.value, ms: ms };
+      }
+    }
+    var nums = String(payload || '').match(/\b\d{9,17}\b/g) || [];
+    for (i = 0; i < nums.length; i++) {
+      var n = toTimestampMs(nums[i]);
+      if (n) return { raw: nums[i], ms: n };
+    }
+    var iso = String(payload || '').match(/\b\d{4}-\d{2}-\d{2}(?:[T ][^\s|"']+)?/);
+    if (iso) {
+      var isoMs = Date.parse(iso[0]);
+      if (!Number.isNaN(isoMs)) return { raw: iso[0], ms: isoMs };
+    }
+    return null;
+  }
+
+  function findDeviceId(segments, text) {
+    var seg = segments.find(function (s) { return s.kind === 'deviceId' && s.value; });
+    if (seg) return seg.value;
+    var m = String(text || '').match(/(?:deviceId|device_id|device|ref|reference)\s*[:=]\s*([A-Za-z0-9_-]{4,})/i);
+    return m ? m[1] : null;
+  }
+
+  function queryToPayload(token) {
+    try {
+      var params = new URLSearchParams(String(token).replace(/^\?/, ''));
+      var get = function () {
+        for (var i = 0; i < arguments.length; i++) if (params.has(arguments[i])) return params.get(arguments[i]);
+        return '';
+      };
+      var url = get('url', 'firebase', 'firebaseUrl', 'firebase_url', 'databaseURL', 'endpoint');
+      var key = get('key', 'apiKey', 'api_key', 'auth', 'secret', 'token');
+      var exp = get('expiresAt', 'expiry', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
+      var dev = get('deviceId', 'device_id', 'device', 'ref', 'reference');
+      var parts = [url, key, exp, dev].filter(Boolean);
+      return parts.length ? parts.join('|||') : null;
+    } catch (e) { return null; }
+  }
+
+  function jsonToPayload(token, notes) {
+    var obj;
+    try { obj = JSON.parse(token); } catch (e) { return null; }
+    var strings = flattenStrings(obj);
+    var encodedKeys = ['s', 'encoded', 'token', 'base64', 'payload', 'data', 'value'];
+    for (var i = 0; i < encodedKeys.length; i++) {
+      var v = getCaseInsensitive(obj, encodedKeys[i]);
+      if (typeof v === 'string' && looksLikeBase64(v)) {
+        var d = decodeChain(v);
+        if (d.ok) {
+          notes.push('Decoded JSON field "' + encodedKeys[i] + '".');
+          return d.text;
+        }
+      }
+    }
+    for (i = 0; i < strings.length; i++) {
+      if (looksLikeBase64(strings[i])) {
+        var decoded = decodeChain(strings[i]);
+        if (decoded.ok && looksLikePayload(decoded.text)) {
+          notes.push('Decoded a Base64 string inside JSON.');
+          return decoded.text;
+        }
+      }
+    }
+    var get = function () {
+      for (var j = 0; j < arguments.length; j++) {
+        var val = getCaseInsensitive(obj, arguments[j]);
+        if (val !== undefined && val !== null && val !== '') return String(val);
+      }
+      return '';
+    };
+    var url = get('url', 'firebaseUrl', 'firebase_url', 'firebaseURL', 'databaseURL', 'databaseUrl', 'endpoint', 'host');
+    var key = get('key', 'apiKey', 'api_key', 'auth', 'secret', 'credential', 'token');
+    var exp = get('expiresAt', 'expiry', 'exp', 'expires', 'validUntil', 'timestamp', 'time');
+    var dev = get('deviceId', 'device_id', 'device', 'ref', 'reference');
+    var parts = [url, key, exp, dev].filter(Boolean);
+    if (parts.length) return parts.join('|||');
+    var fbs = strings.filter(function (s) { return FIREBASE_HOST_RE.test(s); });
+    if (fbs.length) return fbs.join('\n');
+    return token;
+  }
+
+  function findBase64InUrlPath(url) {
+    try {
+      var u = new URL(url);
+      var parts = u.pathname.split('/').filter(Boolean).reverse();
+      for (var i = 0; i < parts.length; i++) {
+        var cleaned;
+        try { cleaned = decodeURIComponent(parts[i]); } catch (e) { cleaned = parts[i]; }
+        if (looksLikeBase64(cleaned)) return cleaned;
+      }
+      if (u.hash && looksLikeBase64(u.hash.slice(1))) return u.hash.slice(1);
+    } catch (e) { /* noop */ }
+    return null;
+  }
+
+  function resolvePayload(raw, depth, notes) {
+    depth = depth || 0;
+    notes = notes || [];
+    var token = cleanToken(raw);
+    if (!token) return { payload: '', sourceType: 'empty', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Empty input.']) };
+    if (depth > MAX_RESOLVE_DEPTH) {
+      return { payload: token, sourceType: 'plain', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Maximum decoding depth reached.']) };
+    }
+
+    if (/^[[{]/.test(token)) {
+      var jsonNotes = notes.slice();
+      var jsonPayload = jsonToPayload(token, jsonNotes);
+      if (jsonPayload) {
+        if (depth < MAX_RESOLVE_DEPTH && looksLikeEncodedContainer(jsonPayload)) {
+          var nestedJson = resolvePayload(jsonPayload, depth + 1, jsonNotes.concat(['Following nested encoded value from JSON.']));
+          nestedJson.sourceType = 'json';
+          return nestedJson;
+        }
+        return { payload: jsonPayload, sourceType: 'json', encoding: 'json', decodeCount: 0, notes: jsonNotes.concat(['Parsed JSON input.']) };
+      }
+    }
+
+    var sVal = extractSParam(token);
+    if (sVal) {
+      var decodedS = decodeChain(sVal);
+      if (decodedS.ok) {
+        var sNotes = notes.concat(['Decoded ?s= value using ' + decodedS.encoding + '.']);
+        if (depth < MAX_RESOLVE_DEPTH && looksLikeEncodedContainer(decodedS.text)) {
+          var nestedS = resolvePayload(decodedS.text, depth + 1, sNotes);
+          nestedS.sourceType = /^https?:\/\//i.test(token) ? 'full-url' : 's-param';
+          nestedS.decodeCount = decodedS.count + nestedS.decodeCount;
+          return nestedS;
+        }
+        return {
+          payload: decodedS.text,
+          sourceType: /^https?:\/\//i.test(token) ? 'full-url' : 's-param',
+          encoding: decodedS.encoding,
+          decodeCount: decodedS.count,
+          notes: sNotes
+        };
+      }
+      notes = notes.concat(['Found an s= value, but it did not decode as readable Base64.']);
+    }
+
+    // A delimited payload can begin with https://, so detect it before plain URLs.
+    if (/\|\|/.test(token)) {
+      return { payload: token, sourceType: 'payload', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a ||| delimited payload.']) };
+    }
+
+    // Query-string payloads can contain an encoded Firebase host; decode them
+    // before running the bare-host detector (which would otherwise match "%2Fhost").
+    if (token.indexOf('=') !== -1 && /(?:^|&)(?:url|firebase|key|auth|expires|expiry|device)/i.test(token)) {
+      var qp = queryToPayload(token);
+      if (qp) return { payload: qp, sourceType: 'query', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Converted URL-encoded fields into a delimited payload.']) };
+    }
+
+    if (/^https?:\/\//i.test(token)) {
+      if (FIREBASE_HOST_RE.test(token)) {
+        return { payload: token, sourceType: 'firebase-url', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a direct Firebase URL.']) };
+      }
+      var pathCandidate = findBase64InUrlPath(token);
+      if (pathCandidate) {
+        var decodedPath = decodeChain(pathCandidate);
+        if (decodedPath.ok) {
+          var pathNotes = notes.concat(['Decoded a Base64 URL path segment using ' + decodedPath.encoding + '.']);
+          if (depth < MAX_RESOLVE_DEPTH && looksLikeEncodedContainer(decodedPath.text)) {
+            var nestedPath = resolvePayload(decodedPath.text, depth + 1, pathNotes);
+            nestedPath.sourceType = 'url';
+            nestedPath.decodeCount = decodedPath.count + nestedPath.decodeCount;
+            return nestedPath;
+          }
+          return { payload: decodedPath.text, sourceType: 'url', encoding: decodedPath.encoding, decodeCount: decodedPath.count, notes: pathNotes };
+        }
+      }
+      var embedded = extractFirebaseUrls(token);
+      if (embedded.length) {
+        return { payload: embedded.map(function (x) { return x.url; }).join('\n'), sourceType: 'url', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Extracted Firebase URL(s) embedded in the URL.']) };
+      }
+      return { payload: token, sourceType: 'url', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a plain URL.']) };
+    }
+
+    if (FIREBASE_HOST_RE.test(token)) {
+      return { payload: token, sourceType: 'firebase-url', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Detected a Firebase host without a scheme; HTTPS assumed.']) };
+    }
+
+    if (looksLikeBase64(token)) {
+      var decodedRaw = decodeChain(token);
+      if (decodedRaw.ok) {
+        var rawNotes = notes.concat(['Decoded raw value using ' + decodedRaw.encoding + '.']);
+        if (depth < MAX_RESOLVE_DEPTH && looksLikeEncodedContainer(decodedRaw.text)) {
+          var nestedRaw = resolvePayload(decodedRaw.text, depth + 1, rawNotes);
+          nestedRaw.sourceType = 'raw-base64';
+          nestedRaw.decodeCount = decodedRaw.count + nestedRaw.decodeCount;
+          return nestedRaw;
+        }
+        return { payload: decodedRaw.text, sourceType: 'raw-base64', encoding: decodedRaw.encoding, decodeCount: decodedRaw.count, notes: rawNotes };
+      }
+      notes = notes.concat(['Input looked like Base64 but did not decode to readable text.']);
+    }
+
+    return { payload: token, sourceType: 'plain', encoding: 'plain', decodeCount: 0, notes: notes.concat(['Input was treated as plain text.']) };
+  }
+
+  function parsePayload(payload, options) {
+    options = options || {};
+    var now = Number.isFinite(options.now) ? options.now : Date.now();
+    var text = String(payload == null ? '' : payload).trim();
+    var firebaseUrls = extractFirebaseUrls(text);
+    var apiKeys = extractApiKeys(text);
+    var segments = splitPayloadSegments(text);
+    var primaryUrl = firebaseUrls[0] || null;
+    var credential = findCredential(segments, apiKeys, primaryUrl, text);
+    var expiryRaw = findExpiry(text, segments);
+    var expiresAt = null;
+    if (expiryRaw && Number.isFinite(expiryRaw.ms)) {
+      expiresAt = {
+        raw: expiryRaw.raw,
+        ms: expiryRaw.ms,
+        iso: new Date(expiryRaw.ms).toISOString(),
+        local: new Date(expiryRaw.ms).toLocaleString(),
+        relative: relativeTime(expiryRaw.ms, now),
+        expired: expiryRaw.ms <= now
+      };
+    }
+    var deviceId = findDeviceId(segments, text);
+    var sourceType = options.sourceType || 'plain';
+    var decodeCount = options.decodeCount || 0;
+    var encoding = options.encoding || 'plain';
+    var notes = (options.notes || []).slice();
+    var isDelimited = /\|\|/.test(text);
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload';
+
+    var status;
+    if (!text) status = 'INVALID';
+    else if (!firebaseUrls.length) status = (!decoded && !isDelimited) ? 'INVALID' : 'NO_FIREBASE';
+    else if (expiresAt && expiresAt.expired) status = 'EXPIRED';
+    else status = 'VALID';
+
+    var meta = STATUS_META[status];
+    var messages = [];
+    var warnings = [];
+
+    if (decodeCount) messages.push('Decoded ' + decodeCount + ' Base64 layer' + (decodeCount === 1 ? '' : 's') + ' (' + encoding + ').');
+    messages.push('Input detected as ' + (SOURCE_LABELS[sourceType] || 'plain text') + '.');
+    if (firebaseUrls.length) messages.push('Found ' + firebaseUrls.length + ' Firebase endpoint' + (firebaseUrls.length === 1 ? '' : 's') + '.');
+    else messages.push('No Firebase endpoint was found in the decoded text.');
+    if (expiresAt) messages.push('Expiry: ' + expiresAt.local + ' (' + expiresAt.relative + ').');
+    else messages.push('No expiry timestamp was detected.');
+    if (credential) messages.push('A credential field was found and is masked by default.');
+
+    notes.forEach(function (n) { messages.push(n); });
+
+    if (apiKeys.length) warnings.push('A Firebase Web API key is present. Do not share it publicly.');
+    if (firebaseUrls.length > 1) warnings.push('Multiple Firebase URLs were found; the first is shown as primary.');
+    if (primaryUrl && !primaryUrl.isSecure) warnings.push('This endpoint uses HTTP instead of HTTPS.');
+    if (expiresAt && expiresAt.expired) warnings.push('This link has expired.');
+    if (!expiresAt) warnings.push('This link has no detectable expiry field.');
+    if (sourceType === 'plain' && decodeCount === 0 && !isDelimited) warnings.push('Input was not recognized as Base64, a delimited payload, or a Firebase URL.');
+    if (primaryUrl && primaryUrl.hasSensitiveQuery) warnings.push('Sensitive query parameters were removed from the displayed URL.');
+
+    return {
+      payload: text,
+      status: status,
+      statusLabel: meta.label,
+      statusDescription: meta.description,
+      severity: meta.severity,
+      segments: segments,
+      firebaseUrls: firebaseUrls,
+      primaryUrl: primaryUrl,
+      projectId: primaryUrl ? primaryUrl.projectId : null,
+      apiKeys: apiKeys,
+      credential: credential,
+      expiresAt: expiresAt,
+      deviceId: deviceId,
+      decoded: decoded,
+      messages: messages,
+      warnings: warnings,
+      sourceType: sourceType,
+      sourceTypeLabel: SOURCE_LABELS[sourceType] || 'Plain text',
+      encoding: encoding,
+      decodeCount: decodeCount,
+      notes: notes,
+      checkedAt: now
+    };
+  }
+
+  function inspect(raw, options) {
+    options = options || {};
+    var start = nowMs();
+    var resolved = resolvePayload(raw, 0, []);
+    var parsed = parsePayload(resolved.payload, {
+      now: options.now,
+      sourceType: resolved.sourceType,
+      encoding: resolved.encoding,
+      decodeCount: resolved.decodeCount,
+      notes: resolved.notes
+    });
+    var end = nowMs();
+    parsed.version = VERSION;
+    parsed.source = String(raw == null ? '' : raw).trim();
+    parsed.resolvedPayload = resolved.payload;
+    parsed.durationMs = Math.max(0, end - start);
+    return parsed;
+  }
+
+  function isCandidateToken(value) {
+    var t = cleanToken(value);
+    if (!t || t.length < 4) return false;
+    if (/^https?:\/\//i.test(t)) return true;
+    if (FIREBASE_HOST_RE.test(t)) return true;
+    if (/\|\|/.test(t)) return true;
+    if (API_KEY_SINGLE_RE.test(t)) return true;
+    if (extractSParam(t)) return true;
+    if (/^s=/i.test(t) && t.length > 8) return true;
+    if (t.length >= 12 && looksLikeBase64(t)) {
+      var d = decodeChain(t);
+      if (d.ok) return true;
+    }
+    return false;
+  }
+
+  function extractCandidates(input, options) {
+    options = options || {};
+    var maxChars = options.maxChars || DEFAULT_MAX_CHARS;
+    var maxCandidates = options.maxCandidates || DEFAULT_MAX_CANDIDATES;
+    var text = String(input == null ? '' : input)
+      .replace(/\r\n?/g, '\n')
+      .replace(/[\u200B-\u200D\uFEFF\u2060]/g, '');
+    var truncated = false;
+    if (text.length > maxChars) {
+      text = text.slice(0, maxChars);
+      truncated = true;
+    }
+    var lines = text.split('\n');
+    var candidates = [];
+    function push(value, line) {
+      if (candidates.length >= maxCandidates) { truncated = true; return false; }
+      var v = cleanToken(value);
+      if (!v) return true;
+      candidates.push({ value: v, line: line });
+      return true;
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line || /^(#|\/\/|;)/.test(line)) continue;
+      if (/\|\|/.test(line) || /^[[{]/.test(line)) {
+        if (!push(line, i + 1)) break;
+        continue;
+      }
+      var tokens = line.match(/[^\s,;"'<>\[\]()]+/g) || [];
+      var added = false;
+      for (var j = 0; j < tokens.length; j++) {
+        var token = cleanToken(tokens[j]);
+        if (!token || !isCandidateToken(token)) continue;
+        if (!push(token, i + 1)) { truncated = true; break; }
+        added = true;
+      }
+      if (truncated) break;
+      if (!added) {
+        var compact = line.replace(/\s/g, '');
+        if (isCandidateToken(line)) {
+          if (!push(line, i + 1)) break;
+        } else if (compact !== line && isCandidateToken(compact)) {
+          if (!push(compact, i + 1)) break;
+        } else if (line.length >= 4) {
+          // Keep unrecognised non-empty lines so bulk mode can report them as invalid.
+          if (!push(line, i + 1)) break;
+        }
+      }
+    }
+    return { candidates: candidates, truncated: truncated };
+  }
+
+  function processBulk(input, options) {
+    options = options || {};
+    var start = nowMs();
+    var now = Number.isFinite(options.now) ? options.now : Date.now();
+    var extracted = extractCandidates(input, options);
+    var allResults = [];
+    var seen = Object.create(null);
+    var duplicateCount = 0;
+    for (var i = 0; i < extracted.candidates.length; i++) {
+      var c = extracted.candidates[i];
+      var r = inspect(c.value, { now: now });
+      r.index = i + 1;
+      r.line = c.line;
+      var key = r.primaryUrl ? r.primaryUrl.canonical : r.resolvedPayload.trim().toLowerCase();
+      if (key && seen[key] !== undefined) {
+        r.duplicate = true;
+        r.duplicateOf = seen[key];
+        duplicateCount++;
+      } else {
+        r.duplicate = false;
+        r.duplicateOf = null;
+        if (key) seen[key] = r.index;
+      }
+      allResults.push(r);
+    }
+    var results = options.dedupe ? allResults.filter(function (r) { return !r.duplicate; }) : allResults.slice();
+    var uniqueUrls = new Set();
+    allResults.forEach(function (r) { if (r.primaryUrl) uniqueUrls.add(r.primaryUrl.canonical); });
+    var stats = {
+      total: allResults.length,
+      shown: results.length,
+      valid: allResults.filter(function (r) { return r.status === 'VALID'; }).length,
+      expired: allResults.filter(function (r) { return r.status === 'EXPIRED'; }).length,
+      noFirebase: allResults.filter(function (r) { return r.status === 'NO_FIREBASE'; }).length,
+      invalid: allResults.filter(function (r) { return r.status === 'INVALID'; }).length,
+      duplicates: duplicateCount,
+      uniqueFirebaseUrls: uniqueUrls.size,
+      withApiKeys: allResults.filter(function (r) { return r.apiKeys.length > 0; }).length,
+      truncated: extracted.truncated,
+      checkedAt: now,
+      durationMs: Math.max(0, nowMs() - start)
+    };
+    return { results: results, allResults: allResults, stats: stats };
+  }
+
+  return {
+    VERSION: VERSION,
+    STATUS_META: STATUS_META,
+    SOURCE_LABELS: SOURCE_LABELS,
+    cleanToken: cleanToken,
+    decodeSValue: decodeSValue,
+    normalizeBase64: normalizeBase64,
+    looksLikeBase64: looksLikeBase64,
+    decodeBase64Utf8: function (value) { return decodeChain(value).text; },
+    decodeChain: decodeChain,
+    extractSParam: extractSParam,
+    extractFirebaseUrls: extractFirebaseUrls,
+    extractApiKeys: extractApiKeys,
+    canonicalFirebaseUrl: canonicalFirebaseUrl,
+    inferProjectId: inferProjectId,
+    maskSecret: maskSecret,
+    toTimestampMs: toTimestampMs,
+    splitPayloadSegments: splitPayloadSegments,
+    parsePayload: parsePayload,
+    resolvePayload: resolvePayload,
+    inspect: inspect,
+    extractCandidates: extractCandidates,
+    processBulk: processBulk
+  };
+});
+
+  </script>
+  <script>
+/*!
+ * LinkScope UI — v1.0.0
+ * Depends on decoder.js (window.LinkScopeDecoder).
+ * All processing is local; no fetch/XHR/WebSocket calls are made.
+ */
+(function () {
+  'use strict';
+
+  var D = window.LinkScopeDecoder;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var SAMPLE_LINKS = [
+    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9hbWFuZ2FuZHUtODg2OTctZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8Vnx8fDE3OTMxMDU1MTUwMTU=',
+    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA=='
+  ];
+
+  var MAX_INPUT_CHARS = 1500000;
+  var MAX_CANDIDATES = 20000;
+  var PAGE_SIZE = 60;
+
+  var STATUS_STYLES = {
+    VALID: {
+      pill: 'bg-emerald-500/15 text-emerald-300 ring-emerald-400/30',
+      dot: 'bg-emerald-400',
+      icon: 'check',
+      iconClass: 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/20'
+    },
+    EXPIRED: {
+      pill: 'bg-rose-500/15 text-rose-300 ring-rose-400/30',
+      dot: 'bg-rose-400',
+      icon: 'clock',
+      iconClass: 'bg-rose-400/10 text-rose-300 ring-rose-400/20'
+    },
+    NO_FIREBASE: {
+      pill: 'bg-amber-500/15 text-amber-300 ring-amber-400/30',
+      dot: 'bg-amber-400',
+      icon: 'alert',
+      iconClass: 'bg-amber-400/10 text-amber-300 ring-amber-400/20'
+    },
+    INVALID: {
+      pill: 'bg-slate-500/15 text-slate-300 ring-slate-400/30',
+      dot: 'bg-slate-400',
+      icon: 'x',
+      iconClass: 'bg-slate-400/10 text-slate-300 ring-slate-400/20'
+    }
+  };
+
+  var FILTERS = [
+    { id: 'all', label: 'All' },
+    { id: 'valid', label: 'Valid' },
+    { id: 'expired', label: 'Expired' },
+    { id: 'issues', label: 'Issues' },
+    { id: 'duplicates', label: 'Duplicates' },
+    { id: 'no-firebase', label: 'No Firebase' }
+  ];
+
+  var state = {
+    mode: 'single',
+    singleResult: null,
+    singleCopyData: {},
+    segmentCopyData: [],
+    fbCopyData: [],
+    bulk: null,
+    filter: 'all',
+    search: '',
+    dedupe: true,
+    revealCredential: false,
+    visibleCount: PAGE_SIZE
+  };
+
+  var singleTimer = null;
+  var toastTimer = null;
+
+  function icon(name, cls) {
+    return '<svg class="' + (cls || 'h-4 w-4') + '" aria-hidden="true"><use href="#i-' + name + '"></use></svg>';
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function truncate(value, max) {
+    var s = String(value == null ? '' : value);
+    return s.length > max ? s.slice(0, max - 1) + '…' : s;
+  }
+
+  function formatBytes(n) {
+    if (n < 1024) return n + ' B';
+    if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+    return (n / 1048576).toFixed(2) + ' MB';
+  }
+
+  function plural(n, word) {
+    return n + ' ' + word + (n === 1 ? '' : 's');
+  }
+
+  async function copyText(text) {
+    var value = String(text == null ? '' : text);
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return true;
+      }
+    } catch (e) { /* fallback below */ }
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = value;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch (e2) {
+      return false;
+    }
+  }
+
+  function showToast(message, type) {
+    type = type || 'success';
+    var toast = $('toast');
+    var iconEl = $('toast-icon');
+    var map = {
+      success: { name: 'check', cls: 'h-4 w-4 text-emerald-300' },
+      error: { name: 'alert', cls: 'h-4 w-4 text-rose-300' },
+      info: { name: 'info', cls: 'h-4 w-4 text-amber-300' }
+    };
+    var cfg = map[type] || map.success;
+    iconEl.setAttribute('class', cfg.cls);
+    iconEl.innerHTML = '<use href="#i-' + cfg.name + '"></use>';
+    $('toast-text').textContent = message;
+    toast.classList.remove('hidden');
+    toast.classList.add('flex');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.add('hidden');
+      toast.classList.remove('flex');
+    }, 2400);
+  }
+
+  function downloadFile(filename, content, mime) {
+    try {
+      var blob = new Blob([content], { type: mime || 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      return true;
+    } catch (e) {
+      showToast('Download failed in this browser', 'error');
+      return false;
+    }
+  }
+
+  function statusStyle(status) {
+    return STATUS_STYLES[status] || STATUS_STYLES.INVALID;
+  }
+
+  function setMode(mode) {
+    state.mode = mode;
+    var singleActive = mode === 'single';
+    $('tab-single').className = 'segment-btn ' + (singleActive ? 'segment-active' : '');
+    $('tab-bulk').className = 'segment-btn ' + (!singleActive ? 'segment-active' : '');
+    $('tab-single').setAttribute('aria-selected', String(singleActive));
+    $('tab-bulk').setAttribute('aria-selected', String(!singleActive));
+    $('panel-single').classList.toggle('hidden', !singleActive);
+    $('panel-bulk').classList.toggle('hidden', singleActive);
+    $('bottom-action-label').textContent = singleActive ? 'Decode link' : 'Check all links';
+
+    if (singleActive) {
+      $('bulk-result').classList.add('hidden');
+      if (state.singleResult) {
+        $('single-result').classList.remove('hidden');
+        renderSingle();
+      }
+    } else {
+      $('single-result').classList.add('hidden');
+      if (state.bulk) {
+        $('bulk-result').classList.remove('hidden');
+        renderBulk();
+      }
+    }
+  }
+
+  function singleCardHtml(opts) {
+    var copyBtn = opts.copyType
+      ? '<button type="button" data-copy-single="' + opts.copyType + '" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' Copy</button>'
+      : '';
+    var extra = opts.actions || '';
+    return '' +
+      '<article class="glass-soft p-3.5 sm:p-4">' +
+        '<div class="flex items-start justify-between gap-2">' +
+          '<div class="flex min-w-0 items-center gap-2">' +
+            '<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ' + opts.iconClass + '">' + icon(opts.iconName, 'h-4 w-4') + '</span>' +
+            '<span class="label mb-0 truncate">' + opts.label + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<p class="mt-3 break-words ' + (opts.mono ? 'break-all font-mono text-[13px] leading-5' : 'text-sm font-semibold') + ' text-slate-100">' + opts.value + '</p>' +
+        (opts.sub ? '<p class="mt-1 text-[11px] leading-4 text-slate-500">' + opts.sub + '</p>' : '') +
+        ((copyBtn || extra) ? '<div class="mt-3 flex flex-wrap gap-2">' + extra + copyBtn + '</div>' : '') +
+      '</article>';
+  }
+
+  function segmentRowHtml(seg, index) {
+    var value = state.revealCredential ? seg.value : (seg.sensitive ? D.maskSecret(seg.value) : seg.value);
+    var secretBadge = seg.sensitive
+      ? '<span class="rounded bg-amber-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-amber-300">secret</span>'
+      : '';
+    return '' +
+      '<div class="flex flex-col gap-2 p-3 sm:flex-row sm:items-start sm:gap-4">' +
+        '<div class="flex min-w-0 items-center gap-2 sm:w-44 sm:shrink-0">' +
+          '<span class="font-mono text-[10px] text-slate-600">' + String(index + 1).padStart(2, '0') + '</span>' +
+          '<span class="truncate text-xs font-semibold text-slate-300">' + escapeHtml(seg.label) + '</span>' +
+          secretBadge +
+        '</div>' +
+        '<div class="min-w-0 flex-1">' +
+          '<p class="break-all font-mono text-[12px] leading-5 ' + (seg.sensitive && !state.revealCredential ? 'text-amber-200' : 'text-slate-200') + '">' + escapeHtml(value) + '</p>' +
+          '<p class="mt-0.5 text-[10px] uppercase tracking-wider text-slate-600">' + escapeHtml(seg.kind) + '</p>' +
+        '</div>' +
+        '<button type="button" data-copy-segment="' + index + '" class="mini-btn self-start">' + icon('copy', 'h-3.5 w-3.5') + ' Copy</button>' +
+      '</div>';
+  }
+
+  function warningBlockHtml(warnings) {
+    if (!warnings.length) return '';
+    return '' +
+      '<div class="mt-4 rounded-2xl border border-amber-400/15 bg-amber-400/[0.06] p-3">' +
+        '<h4 class="flex items-center gap-1.5 text-xs font-bold text-amber-200">' + icon('alert', 'h-3.5 w-3.5') + ' Warnings</h4>' +
+        '<ul class="mt-2 space-y-1 text-[11px] leading-5 text-amber-100/80">' +
+          warnings.map(function (w) { return '<li>• ' + escapeHtml(w) + '</li>'; }).join('') +
+        '</ul>' +
+      '</div>';
+  }
+
+  function renderSingle() {
+    var r = state.singleResult;
+    if (!r) return;
+    var style = statusStyle(r.status);
+
+    state.singleCopyData = {
+      url: r.primaryUrl ? r.primaryUrl.url : '',
+      payload: r.resolvedPayload || r.payload || '',
+      json: JSON.stringify(r, null, 2),
+      credential: r.credential ? r.credential.value : '',
+      source: r.source || ''
+    };
+    state.segmentCopyData = r.segments.map(function (s) { return s.value; });
+    state.fbCopyData = r.firebaseUrls.map(function (u) { return u.url; });
+
+    $('single-result').classList.remove('hidden');
+    $('single-status-dot').className = 'h-2.5 w-2.5 rounded-full ' + style.dot;
+    $('single-status-pill').className = 'rounded-full px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset ' + style.pill;
+    $('single-status-pill').textContent = r.statusLabel;
+    $('single-description').textContent = r.statusDescription;
+    $('single-timing').textContent = r.durationMs.toFixed(1) + ' ms · ' + r.sourceTypeLabel;
+
+    var revealBtn = '<button type="button" data-action="reveal-credential" class="mini-btn" aria-label="Toggle credential visibility">' +
+      icon(state.revealCredential ? 'eye-off' : 'eye', 'h-3.5 w-3.5') +
+      (state.revealCredential ? ' Hide' : ' Reveal') + '</button>';
+
+    var cards = [];
+    cards.push(singleCardHtml({
+      label: 'Firebase URL',
+      value: r.primaryUrl ? escapeHtml(r.primaryUrl.url) : '<span class="text-slate-400">No Firebase URL found</span>',
+      sub: r.primaryUrl ? escapeHtml(r.primaryUrl.type + ' · ' + r.primaryUrl.host) : 'Try a full ?s= link, raw Base64, or decoded payload.',
+      iconName: 'database',
+      iconClass: style.iconClass,
+      copyType: r.primaryUrl ? 'url' : null,
+      mono: true
+    }));
+    cards.push(singleCardHtml({
+      label: 'Project ID',
+      value: escapeHtml(r.projectId || '—'),
+      sub: r.primaryUrl ? escapeHtml('Region: ' + r.primaryUrl.region + ' · ' + r.primaryUrl.protocol.toUpperCase()) : 'Extracted from the hostname.',
+      iconName: 'layers',
+      iconClass: 'bg-indigo-400/10 text-indigo-300 ring-indigo-400/20',
+      mono: !!r.projectId
+    }));
+    cards.push(singleCardHtml({
+      label: 'Credential',
+      value: r.credential
+        ? escapeHtml(state.revealCredential ? r.credential.value : r.credential.masked)
+        : '<span class="text-slate-400">Not present</span>',
+      sub: r.credential ? escapeHtml(r.credential.type + ' · from ' + r.credential.source) : 'No key or secret field detected.',
+      iconName: 'key',
+      iconClass: 'bg-amber-400/10 text-amber-300 ring-amber-400/20',
+      copyType: r.credential ? 'credential' : null,
+      actions: r.credential ? revealBtn : '',
+      mono: !!r.credential
+    }));
+    cards.push(singleCardHtml({
+      label: 'Expiry',
+      value: r.expiresAt ? escapeHtml(r.expiresAt.local) : '<span class="text-slate-400">No expiry field</span>',
+      sub: r.expiresAt ? escapeHtml(r.expiresAt.relative + ' · ' + r.expiresAt.iso) : 'This link may never expire.',
+      iconName: 'clock',
+      iconClass: r.expiresAt && r.expiresAt.expired ? 'bg-rose-400/10 text-rose-300 ring-rose-400/20' : 'bg-emerald-400/10 text-emerald-300 ring-emerald-400/20'
+    }));
+    cards.push(singleCardHtml({
+      label: 'Device / reference',
+      value: escapeHtml(r.deviceId || '—'),
+      sub: r.deviceId ? 'Optional field 4 or detected ID.' : 'No device reference found.',
+      iconName: 'link',
+      iconClass: 'bg-sky-400/10 text-sky-300 ring-sky-400/20',
+      mono: !!r.deviceId
+    }));
+    cards.push(singleCardHtml({
+      label: 'Source & encoding',
+      value: escapeHtml(r.sourceTypeLabel),
+      sub: escapeHtml(r.encoding + ' · ' + plural(r.decodeCount, 'decode layer')),
+      iconName: 'bolt',
+      iconClass: 'bg-orange-400/10 text-orange-300 ring-orange-400/20'
+    }));
+    $('single-cards').innerHTML = cards.join('');
+
+    var allUrlsHtml = '';
+    if (r.firebaseUrls.length > 1) {
+      allUrlsHtml = '' +
+        '<div class="mt-4">' +
+          '<h4 class="text-xs font-bold text-slate-300">All Firebase endpoints (' + r.firebaseUrls.length + ')</h4>' +
+          '<div class="mt-2 space-y-2">' +
+            r.firebaseUrls.map(function (u, i) {
+              return '<div class="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/50 p-2.5">' +
+                '<p class="min-w-0 flex-1 break-all font-mono text-[11px] text-slate-300">' + escapeHtml(u.url) + '</p>' +
+                '<button type="button" data-copy-fb="' + i + '" class="mini-btn shrink-0">' + icon('copy', 'h-3.5 w-3.5') + '</button>' +
+              '</div>';
+            }).join('') +
+          '</div>' +
+        '</div>';
+    }
+
+    var messagesHtml = '' +
+      '<details class="mt-4">' +
+        '<summary class="cursor-pointer list-none text-xs font-semibold text-slate-400 hover:text-slate-200">Inspection notes (' + r.messages.length + ')</summary>' +
+        '<ul class="mt-2 space-y-1 text-[11px] leading-5 text-slate-500">' +
+          r.messages.map(function (m) { return '<li>• ' + escapeHtml(m) + '</li>'; }).join('') +
+        '</ul>' +
+      '</details>';
+
+    $('single-breakdown').innerHTML = '' +
+      '<div class="flex flex-wrap items-center justify-between gap-2">' +
+        '<h3 class="flex items-center gap-2 text-sm font-bold text-white">' + icon('layers', 'h-4 w-4 text-amber-300') + ' Payload breakdown</h3>' +
+        '<span class="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold text-slate-400">' + plural(r.segments.length, 'field') + '</span>' +
+      '</div>' +
+      '<div class="mt-3 divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40">' +
+        (r.segments.length ? r.segments.map(segmentRowHtml).join('') : '<p class="p-4 text-xs text-slate-500">No fields were decoded.</p>') +
+      '</div>' +
+      allUrlsHtml +
+      warningBlockHtml(r.warnings) +
+      messagesHtml;
+
+    $('single-raw').innerHTML = '' +
+      '<div class="flex flex-wrap items-center justify-between gap-2">' +
+        '<h3 class="flex items-center gap-2 text-sm font-bold text-white">' + icon('file', 'h-4 w-4 text-amber-300') + ' Raw decoded payload</h3>' +
+        '<div class="flex flex-wrap gap-2">' +
+          '<button type="button" data-copy-single="payload" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' Payload</button>' +
+          '<button type="button" data-copy-single="json" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' JSON</button>' +
+          '<button type="button" data-copy-single="source" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' Source</button>' +
+        '</div>' +
+      '</div>' +
+      '<pre class="code-block mt-3 whitespace-pre-wrap break-all">' + escapeHtml(r.resolvedPayload || '—') + '</pre>' +
+      '<div class="mt-3 grid gap-1 text-[11px] text-slate-500 sm:grid-cols-3">' +
+        '<p><strong class="text-slate-400">Encoding:</strong> ' + escapeHtml(r.encoding) + '</p>' +
+        '<p><strong class="text-slate-400">Layers:</strong> ' + r.decodeCount + '</p>' +
+        '<p><strong class="text-slate-400">Checked:</strong> ' + escapeHtml(new Date(r.checkedAt).toLocaleString()) + '</p>' +
+      '</div>';
+  }
+
+  function clearSingleResult() {
+    state.singleResult = null;
+    $('single-result').classList.add('hidden');
+  }
+
+  function runSingle(opts) {
+    var silent = opts && opts.silent;
+    var raw = $('single-input').value.trim();
+    if (!raw) {
+      clearSingleResult();
+      if (!silent) showToast('Paste a link first', 'error');
+      return;
+    }
+    try {
+      var candidates = D.extractCandidates(raw, { maxChars: MAX_INPUT_CHARS, maxCandidates: MAX_CANDIDATES }).candidates;
+      if (candidates.length > 1) {
+        $('bulk-input').value = raw;
+        updateBulkCount();
+        setMode('bulk');
+        runBulk();
+        if (!silent) showToast('Multiple links detected — switched to Bulk', 'info');
+        return;
+      }
+      var r = D.inspect(raw);
+      state.singleResult = r;
+      state.revealCredential = false;
+      updateRevealButton();
+      renderSingle();
+      if (!silent) {
+        if (r.status === 'VALID') showToast('Link decoded successfully', 'success');
+        else if (r.status === 'INVALID') showToast('Could not decode this input', 'error');
+        else showToast('Decoded with notes', 'info');
+      }
+    } catch (e) {
+      console.error(e);
+      if (!silent) showToast('Decoder error — check the input', 'error');
+    }
+  }
+
+  function scheduleSingleDecode() {
+    clearTimeout(singleTimer);
+    singleTimer = setTimeout(function () {
+      var raw = $('single-input').value.trim();
+      if (raw.length >= 8) runSingle({ silent: true });
+    }, 550);
+  }
+
+  function updateBulkCount() {
+    var value = $('bulk-input').value;
+    var lines = value.split(/\r?\n/).filter(function (l) { return l.trim(); }).length;
+    var size = 0;
+    try { size = new Blob([value]).size; } catch (e) { size = value.length; }
+    $('bulk-count').textContent = plural(lines, 'line') + ' · ' + formatBytes(size);
+  }
+
+  function matchesFilter(r, filter) {
+    switch (filter) {
+      case 'valid': return r.status === 'VALID';
+      case 'expired': return r.status === 'EXPIRED';
+      case 'issues': return r.status === 'EXPIRED' || r.status === 'INVALID' || r.status === 'NO_FIREBASE';
+      case 'duplicates': return !!r.duplicate;
+      case 'no-firebase': return r.status === 'NO_FIREBASE';
+      default: return true;
+    }
+  }
+
+  function searchHaystack(r) {
+    return [
+      r.source, r.resolvedPayload, r.payload, r.statusLabel, r.sourceTypeLabel,
+      r.projectId, r.deviceId, r.credential ? r.credential.value : '',
+      r.primaryUrl ? r.primaryUrl.url : '',
+      r.primaryUrl ? r.primaryUrl.host : ''
+    ].join(' ').toLowerCase();
+  }
+
+  function getFilteredResults() {
+    if (!state.bulk) return [];
+    var q = state.search.trim().toLowerCase();
+    return state.bulk.allResults.filter(function (r) {
+      if (state.filter !== 'duplicates' && state.dedupe && r.duplicate) return false;
+      if (!matchesFilter(r, state.filter)) return false;
+      if (q && searchHaystack(r).indexOf(q) === -1) return false;
+      return true;
+    });
+  }
+
+  function statCardHtml(label, value, iconName, colorClass) {
+    return '' +
+      '<div class="glass-soft p-3.5 sm:p-4">' +
+        '<div class="flex items-center justify-between gap-2">' +
+          '<span class="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">' + label + '</span>' +
+          '<span class="' + colorClass + '">' + icon(iconName, 'h-4 w-4') + '</span>' +
+        '</div>' +
+        '<p class="mt-2 text-xl font-extrabold tracking-tight text-white sm:text-2xl">' + value + '</p>' +
+      '</div>';
+  }
+
+  function renderStats(stats) {
+    var cards = [
+      statCardHtml('Checked', stats.total, 'list', 'text-slate-400'),
+      statCardHtml('Valid', stats.valid, 'check', 'text-emerald-300'),
+      statCardHtml('Unique URLs', stats.uniqueFirebaseUrls, 'database', 'text-amber-300'),
+      statCardHtml('Duplicates', stats.duplicates, 'layers', 'text-indigo-300'),
+      statCardHtml('Expired', stats.expired, 'clock', 'text-rose-300'),
+      statCardHtml('No Firebase', stats.noFirebase, 'alert', 'text-amber-300'),
+      statCardHtml('Invalid', stats.invalid, 'x', 'text-slate-400'),
+      statCardHtml('API keys', stats.withApiKeys, 'key', 'text-orange-300')
+    ];
+    $('bulk-stats').innerHTML = cards.join('');
+  }
+
+  function renderFilterChips() {
+    if (!state.bulk) return;
+    var html = FILTERS.map(function (f) {
+      var count = state.bulk.allResults.filter(function (r) { return matchesFilter(r, f.id); }).length;
+      var active = state.filter === f.id;
+      return '<button type="button" data-filter="' + f.id + '" class="chip ' + (active ? 'chip-active' : '') + '">' +
+        f.label + '<span class="rounded-full bg-black/25 px-1.5 py-0.5 font-mono text-[10px]">' + count + '</span>' +
+      '</button>';
+    }).join('');
+    $('filter-chips').innerHTML = html;
+  }
+
+  function miniSegmentHtml(seg, index) {
+    var value = state.revealCredential ? seg.value : (seg.sensitive ? D.maskSecret(seg.value) : seg.value);
+    return '' +
+      '<div class="flex gap-2 py-1.5">' +
+        '<span class="font-mono text-[10px] text-slate-600">' + String(index + 1).padStart(2, '0') + '</span>' +
+        '<div class="min-w-0">' +
+          '<p class="text-[10px] font-bold uppercase tracking-wide text-slate-500">' + escapeHtml(seg.label) + '</p>' +
+          '<p class="break-all font-mono text-[11px] leading-4 ' + (seg.sensitive && !state.revealCredential ? 'text-amber-200' : 'text-slate-300') + '">' + escapeHtml(value) + '</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function bulkCardHtml(r) {
+    var style = statusStyle(r.status);
+    var display = r.primaryUrl
+      ? r.primaryUrl.url
+      : (r.resolvedPayload ? truncate(r.resolvedPayload, 180) : '—');
+    var subParts = [];
+    if (r.projectId) subParts.push('Project: ' + r.projectId);
+    if (r.primaryUrl) subParts.push(r.primaryUrl.type);
+    if (r.expiresAt) subParts.push(r.expiresAt.relative);
+    if (r.credential) subParts.push('Key: ' + r.credential.masked);
+    subParts.push(r.sourceTypeLabel);
+    var duplicateBadge = r.duplicate
+      ? '<span class="rounded-full bg-indigo-400/10 px-2 py-0.5 text-[10px] font-bold text-indigo-300 ring-1 ring-inset ring-indigo-400/20">duplicate of #' + r.duplicateOf + '</span>'
+      : '';
+    return '' +
+      '<article class="glass p-4">' +
+        '<div class="flex items-start gap-3">' +
+          '<span class="mt-1.5 h-2 w-2 shrink-0 rounded-full ' + style.dot + '"></span>' +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="flex flex-wrap items-center gap-2">' +
+              '<span class="font-mono text-[10px] text-slate-500">#' + r.index + ' · line ' + r.line + '</span>' +
+              '<span class="rounded-full px-2 py-0.5 text-[10px] font-bold ring-1 ring-inset ' + style.pill + '">' + escapeHtml(r.statusLabel) + '</span>' +
+              duplicateBadge +
+            '</div>' +
+            '<p class="mt-2 break-all font-mono text-[13px] font-medium ' + (r.primaryUrl ? 'text-slate-100' : 'text-slate-400') + '">' + escapeHtml(display) + '</p>' +
+            '<p class="mt-1 break-words text-[11px] leading-4 text-slate-500">' + escapeHtml(subParts.join(' · ')) + '</p>' +
+            '<div class="mt-3 flex flex-wrap gap-2">' +
+              '<button type="button" data-copy-bulk="url" data-id="' + r.index + '" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' URL</button>' +
+              '<button type="button" data-copy-bulk="payload" data-id="' + r.index + '" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' Payload</button>' +
+              '<button type="button" data-copy-bulk="json" data-id="' + r.index + '" class="mini-btn">' + icon('copy', 'h-3.5 w-3.5') + ' JSON</button>' +
+            '</div>' +
+            '<details class="mt-3 rounded-xl border border-white/10 bg-slate-950/40">' +
+              '<summary class="cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-slate-300 hover:text-white">Breakdown (' + plural(r.segments.length, 'field') + ')</summary>' +
+              '<div class="border-t border-white/5 px-3 py-2">' +
+                (r.segments.length ? r.segments.map(miniSegmentHtml).join('') : '<p class="py-2 text-[11px] text-slate-500">No fields decoded.</p>') +
+                (r.warnings.length ? '<ul class="mt-2 space-y-1 border-t border-white/5 pt-2 text-[10px] leading-4 text-amber-200/80">' + r.warnings.map(function (w) { return '<li>• ' + escapeHtml(w) + '</li>'; }).join('') + '</ul>' : '') +
+              '</div>' +
+            '</details>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }
+
+  function renderBulkList() {
+    if (!state.bulk) return;
+    var filtered = getFilteredResults();
+    var visible = filtered.slice(0, state.visibleCount);
+    if (!visible.length) {
+      $('bulk-list').innerHTML = '' +
+        '<div class="glass flex flex-col items-center gap-2 p-8 text-center">' +
+          '<span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/5 text-slate-500">' + icon('search', 'h-5 w-5') + '</span>' +
+          '<p class="text-sm font-semibold text-slate-300">No matching results</p>' +
+          '<p class="text-xs text-slate-500">Try a different filter or clear the search box.</p>' +
+        '</div>';
+    } else {
+      $('bulk-list').innerHTML = visible.map(bulkCardHtml).join('');
+    }
+    var remaining = filtered.length - visible.length;
+    $('btn-load-more').classList.toggle('hidden', remaining <= 0);
+    $('btn-load-more').innerHTML = icon('refresh', 'h-4 w-4') + ' Load more (' + remaining + ' remaining)';
+  }
+
+  function renderBulk() {
+    if (!state.bulk) return;
+    var stats = state.bulk.stats;
+    $('bulk-result').classList.remove('hidden');
+    $('bulk-timing').textContent = stats.total + ' items · ' + stats.durationMs.toFixed(1) + ' ms · ' + new Date(stats.checkedAt).toLocaleTimeString();
+    renderStats(stats);
+    renderFilterChips();
+    renderBulkList();
+    var notice = $('bulk-truncated');
+    if (stats.truncated) {
+      notice.textContent = 'Input limit reached: only the first ' + formatBytes(MAX_INPUT_CHARS) + ' / ' + MAX_CANDIDATES + ' items were processed.';
+      notice.classList.remove('hidden');
+    } else {
+      notice.classList.add('hidden');
+    }
+  }
+
+  function runBulk() {
+    var raw = $('bulk-input').value;
+    if (!raw.trim()) {
+      state.bulk = null;
+      $('bulk-result').classList.add('hidden');
+      showToast('Paste or upload a list first', 'error');
+      return;
+    }
+    try {
+      var output = D.processBulk(raw, {
+        dedupe: state.dedupe,
+        maxChars: MAX_INPUT_CHARS,
+        maxCandidates: MAX_CANDIDATES
+      });
+      output.byIndex = new Map(output.allResults.map(function (r) { return [String(r.index), r]; }));
+      state.bulk = output;
+      state.visibleCount = PAGE_SIZE;
+      renderBulk();
+      showToast('Checked ' + plural(output.stats.total, 'item') + ' in ' + output.stats.durationMs.toFixed(1) + ' ms', 'success');
+    } catch (e) {
+      console.error(e);
+      showToast('Bulk decoder error — check the input', 'error');
+    }
+  }
+
+  function csvCell(value) {
+    var s = String(value == null ? '' : value);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function toCSV(results) {
+    var headers = [
+      'index', 'line', 'status', 'status_label', 'source_type', 'firebase_url', 'base_url',
+      'project_id', 'host_type', 'region', 'credential_masked', 'expires_at_iso',
+      'expires_relative', 'device_id', 'duplicate', 'source'
+    ];
+    var rows = results.map(function (r) {
+      return [
+        r.index, r.line, r.status, r.statusLabel, r.sourceTypeLabel,
+        r.primaryUrl ? r.primaryUrl.url : '',
+        r.primaryUrl ? r.primaryUrl.baseUrl : '',
+        r.projectId || '',
+        r.primaryUrl ? r.primaryUrl.type : '',
+        r.primaryUrl ? r.primaryUrl.region : '',
+        r.credential ? r.credential.masked : '',
+        r.expiresAt ? r.expiresAt.iso : '',
+        r.expiresAt ? r.expiresAt.relative : '',
+        r.deviceId || '',
+        r.duplicate ? 'yes' : 'no',
+        r.source
+      ];
+    });
+    return [headers].concat(rows).map(function (row) {
+      return row.map(csvCell).join(',');
+    }).join('\r\n');
+  }
+
+  function currentExportRows() {
+    return getFilteredResults();
+  }
+
+  function exportFilename(ext) {
+    var d = new Date();
+    var stamp = d.toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    return 'linkscope-' + stamp + '.' + ext;
+  }
+
+  function updateRevealButton() {
+    var btn = $('btn-reveal');
+    if (!btn) return;
+    btn.innerHTML = icon(state.revealCredential ? 'eye-off' : 'eye', 'h-4 w-4') +
+      ' Reveal keys: <span>' + (state.revealCredential ? 'ON' : 'OFF') + '</span>';
+    btn.setAttribute('aria-pressed', String(state.revealCredential));
+    btn.className = state.revealCredential
+      ? 'btn-secondary border-amber-400/30 bg-amber-400/10 text-amber-200'
+      : 'btn-secondary';
+  }
+
+  function updateDedupeButton() {
+    var btn = $('btn-dedupe');
+    btn.setAttribute('aria-pressed', String(state.dedupe));
+    $('dedupe-state').textContent = state.dedupe ? 'ON' : 'OFF';
+    btn.className = state.dedupe
+      ? 'btn-secondary border-amber-400/30 bg-amber-400/10 text-amber-200'
+      : 'btn-secondary';
+  }
+
+  function readFileAsText(file) {
+    if (typeof file.text === 'function') return file.text();
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onload = function () { resolve(String(fr.result || '')); };
+      fr.onerror = function () { reject(fr.error); };
+      fr.readAsText(file);
+    });
+  }
+
+  async function readFiles(fileList) {
+    var files = Array.from(fileList || []);
+    if (!files.length) return;
+    var chunks = [];
+    var total = 0;
+    var truncated = false;
+    for (var i = 0; i < files.length; i++) {
+      var text = await readFileAsText(files[i]);
+      var room = MAX_INPUT_CHARS - total;
+      if (room <= 0) { truncated = true; break; }
+      if (text.length > room) {
+        chunks.push(text.slice(0, room));
+        truncated = true;
+        total = MAX_INPUT_CHARS;
+        break;
+      }
+      chunks.push(text);
+      total += text.length;
+    }
+    var existing = $('bulk-input').value.trim();
+    var combined = chunks.join('\n');
+    $('bulk-input').value = existing ? existing + '\n' + combined : combined;
+    updateBulkCount();
+    var status = $('file-status');
+    status.textContent = (truncated ? 'Loaded with size limit: ' : 'Loaded ') + plural(files.length, 'file') + ' · ' + formatBytes(total);
+    status.classList.remove('hidden');
+    showToast(truncated ? 'Files loaded (size limit applied)' : 'Files loaded', truncated ? 'info' : 'success');
+  }
+
+  function autoLoadFromQuery() {
+    try {
+      var s = new URL(window.location.href).searchParams.get('s');
+      if (s) {
+        $('single-input').value = window.location.href;
+        setMode('single');
+        runSingle({ silent: true });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function bindEvents() {
+    $('tab-single').addEventListener('click', function () { setMode('single'); });
+    $('tab-bulk').addEventListener('click', function () { setMode('bulk'); });
+
+    $('single-input').addEventListener('input', scheduleSingleDecode);
+    $('btn-decode').addEventListener('click', function () { runSingle(); });
+    $('bottom-action').addEventListener('click', function () {
+      if (state.mode === 'single') runSingle();
+      else runBulk();
+    });
+
+    $('btn-paste').addEventListener('click', async function () {
+      try {
+        var text = await navigator.clipboard.readText();
+        $('single-input').value = text;
+        runSingle();
+      } catch (e) {
+        showToast('Clipboard unavailable — paste manually', 'error');
+      }
+    });
+
+    $('btn-sample').addEventListener('click', function () {
+      $('single-input').value = SAMPLE_LINKS[0];
+      runSingle();
+    });
+
+    $('btn-clear-single').addEventListener('click', function () {
+      $('single-input').value = '';
+      clearSingleResult();
+      clearTimeout(singleTimer);
+      showToast('Cleared', 'info');
+    });
+
+    $('bulk-input').addEventListener('input', updateBulkCount);
+    $('btn-check').addEventListener('click', runBulk);
+    $('btn-sample-bulk').addEventListener('click', function () {
+      $('bulk-input').value = SAMPLE_LINKS.join('\n');
+      updateBulkCount();
+      runBulk();
+    });
+    $('btn-clear-bulk').addEventListener('click', function () {
+      $('bulk-input').value = '';
+      state.bulk = null;
+      $('bulk-result').classList.add('hidden');
+      $('file-status').classList.add('hidden');
+      updateBulkCount();
+      showToast('Cleared', 'info');
+    });
+
+    $('btn-dedupe').addEventListener('click', function () {
+      state.dedupe = !state.dedupe;
+      updateDedupeButton();
+      state.visibleCount = PAGE_SIZE;
+      if (state.bulk) renderBulk();
+    });
+
+    $('btn-reveal').addEventListener('click', function () {
+      state.revealCredential = !state.revealCredential;
+      updateRevealButton();
+      if (state.singleResult) renderSingle();
+      if (state.bulk) renderBulkList();
+    });
+
+    $('btn-choose-file').addEventListener('click', function () { $('file-input').click(); });
+    $('file-input').addEventListener('change', function (e) {
+      readFiles(e.target.files);
+      e.target.value = '';
+    });
+
+    var dropzone = $('dropzone');
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      dropzone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        dropzone.classList.add('border-amber-400/50', 'bg-amber-400/[0.06]');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      dropzone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        dropzone.classList.remove('border-amber-400/50', 'bg-amber-400/[0.06]');
+      });
+    });
+    dropzone.addEventListener('drop', function (e) {
+      if (e.dataTransfer && e.dataTransfer.files) readFiles(e.dataTransfer.files);
+    });
+
+    $('single-result').addEventListener('click', function (e) {
+      var reveal = e.target.closest('[data-action="reveal-credential"]');
+      if (reveal) {
+        state.revealCredential = !state.revealCredential;
+        updateRevealButton();
+        renderSingle();
+        return;
+      }
+      var copy = e.target.closest('[data-copy-single]');
+      if (copy) {
+        var key = copy.getAttribute('data-copy-single');
+        var text = state.singleCopyData[key] || '';
+        if (!text) { showToast('Nothing to copy', 'error'); return; }
+        copyText(text).then(function (ok) { showToast(ok ? 'Copied to clipboard' : 'Copy failed', ok ? 'success' : 'error'); });
+        return;
+      }
+      var seg = e.target.closest('[data-copy-segment]');
+      if (seg) {
+        var idx = Number(seg.getAttribute('data-copy-segment'));
+        var segText = state.segmentCopyData[idx] || '';
+        copyText(segText).then(function (ok) { showToast(ok ? 'Field copied' : 'Copy failed', ok ? 'success' : 'error'); });
+        return;
+      }
+      var fb = e.target.closest('[data-copy-fb]');
+      if (fb) {
+        var fi = Number(fb.getAttribute('data-copy-fb'));
+        var fbText = state.fbCopyData[fi] || '';
+        copyText(fbText).then(function (ok) { showToast(ok ? 'URL copied' : 'Copy failed', ok ? 'success' : 'error'); });
+      }
+    });
+
+    $('bulk-list').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-copy-bulk]');
+      if (!btn || !state.bulk) return;
+      var type = btn.getAttribute('data-copy-bulk');
+      var id = btn.getAttribute('data-id');
+      var r = state.bulk.byIndex.get(String(id));
+      if (!r) return;
+      var text = '';
+      if (type === 'url') text = r.primaryUrl ? r.primaryUrl.url : (r.resolvedPayload || r.source);
+      else if (type === 'payload') text = r.resolvedPayload || r.payload || r.source;
+      else text = JSON.stringify(r, null, 2);
+      if (!text) { showToast('Nothing to copy', 'error'); return; }
+      copyText(text).then(function (ok) { showToast(ok ? 'Copied to clipboard' : 'Copy failed', ok ? 'success' : 'error'); });
+    });
+
+    $('filter-chips').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-filter]');
+      if (!btn || !state.bulk) return;
+      state.filter = btn.getAttribute('data-filter');
+      state.visibleCount = PAGE_SIZE;
+      renderFilterChips();
+      renderBulkList();
+    });
+
+    $('bulk-search').addEventListener('input', function (e) {
+      state.search = e.target.value;
+      state.visibleCount = PAGE_SIZE;
+      $('btn-clear-search').classList.toggle('hidden', !e.target.value);
+      renderBulkList();
+    });
+
+    $('btn-clear-search').addEventListener('click', function () {
+      $('bulk-search').value = '';
+      state.search = '';
+      state.visibleCount = PAGE_SIZE;
+      $('btn-clear-search').classList.add('hidden');
+      renderBulkList();
+      $('bulk-search').focus();
+    });
+
+    $('btn-load-more').addEventListener('click', function () {
+      state.visibleCount += PAGE_SIZE;
+      renderBulkList();
+    });
+
+    $('btn-copy-urls').addEventListener('click', function () {
+      var rows = currentExportRows();
+      var urls = Array.from(new Set(rows.map(function (r) { return r.primaryUrl ? r.primaryUrl.url : ''; }).filter(Boolean)));
+      if (!urls.length) { showToast('No Firebase URLs in this view', 'error'); return; }
+      copyText(urls.join('\n')).then(function (ok) { showToast(ok ? plural(urls.length, 'URL') + ' copied' : 'Copy failed', ok ? 'success' : 'error'); });
+    });
+
+    $('btn-copy-json').addEventListener('click', function () {
+      var rows = currentExportRows();
+      if (!rows.length) { showToast('No results in this view', 'error'); return; }
+      copyText(JSON.stringify(rows, null, 2)).then(function (ok) { showToast(ok ? 'JSON copied' : 'Copy failed', ok ? 'success' : 'error'); });
+    });
+
+    $('btn-download-csv').addEventListener('click', function () {
+      var rows = currentExportRows();
+      if (!rows.length) { showToast('No results in this view', 'error'); return; }
+      if (downloadFile(exportFilename('csv'), '\uFEFF' + toCSV(rows), 'text/csv;charset=utf-8')) showToast('CSV downloaded', 'success');
+    });
+
+    $('btn-download-json').addEventListener('click', function () {
+      var rows = currentExportRows();
+      if (!rows.length) { showToast('No results in this view', 'error'); return; }
+      if (downloadFile(exportFilename('json'), JSON.stringify(rows, null, 2), 'application/json;charset=utf-8')) showToast('JSON downloaded', 'success');
+    });
+
+    window.addEventListener('error', function (e) {
+      console.error('LinkScope error:', e.error || e.message);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      console.error('LinkScope rejection:', e.reason);
+    });
+  }
+
+  function init() {
+    if (!D) {
+      showToast('decoder.js failed to load', 'error');
+      return;
+    }
+    bindEvents();
+    updateDedupeButton();
+    updateRevealButton();
+    updateBulkCount();
+    setMode('single');
+    autoLoadFromQuery();
+  }
+
+  init();
+})();
+
+  </script>
+</body>
+</html>
