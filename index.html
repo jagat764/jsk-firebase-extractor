@@ -273,6 +273,9 @@ https://project-default-rtdb.firebaseio.com | KEY | 1793105515015 | device-123</
             <li>• <span class="font-semibold text-slate-300">Field 3</span> — expiry timestamp in milliseconds (10-digit seconds also work).</li>
             <li>• <span class="font-semibold text-slate-300">Field 4+</span> — optional device ID or reference.</li>
           </ul>
+          <p class="mt-3">Some apps — such as <span class="font-semibold text-slate-300">VANTAGE</span> share links — wrap the same details as Base64 over an XOR-encoded JSON object instead:</p>
+          <pre class="code-block mt-2 whitespace-pre-wrap break-all">base64url( XOR( {"u":"FIREBASE_URL","k":"CREDENTIAL","l":"LABEL","e":EXPIRY_MS} ) )</pre>
+          <p class="mt-2">Those links are recognised automatically as a <span class="font-semibold text-slate-300">VANTAGE share link</span> and yield the same endpoint, credential, label and expiry fields. <code class="rounded bg-white/5 px-1.5 py-0.5 font-mono text-amber-200">"e":0</code> means the link never expires.</p>
           <p class="mt-3 rounded-xl border border-emerald-400/15 bg-emerald-400/[0.06] p-3 text-emerald-200">
             <strong class="font-bold">Privacy:</strong> everything runs in your browser. The tool never connects to a Firebase database, never tests credentials, and never uploads pasted data.
           </p>

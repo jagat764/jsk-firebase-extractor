@@ -33,6 +33,7 @@
     json: 'JSON payload',
     query: 'Query-string payload',
     'pipe-payload': 'Pipe-delimited payload',
+    'vantage-share': 'VANTAGE share link',
     plain: 'Plain text',
     empty: 'Empty input'
   };
@@ -187,6 +188,67 @@
 
   function looksLikeEncodedContainer(text) {
     return ENCODED_CONTAINER_RE.test(String(text || ''));
+  }
+
+  // Format C — VANTAGE share links (vantagepanel.netlify.app):
+  //   ?s= base64url( XOR( JSON {u,k,l,e}, fixedKey ) )
+  // "u" = database URL, "k" = credential, "l" = label, "e" = expiry in ms
+  // (0 or missing means the link never expires). This is the app's public
+  // client-side fallback encoder, so the key ships with the page itself.
+  var VANTAGE_XOR_KEY = 'vantagepanelv1_Xk9mP2wN7qL4vR6jH3cF8yT1ZbE5sA09';
+
+  function looseBase64(value) {
+    var s = String(value == null ? '' : value).replace(/\s/g, '');
+    s = s.replace(/-/g, '+').replace(/_/g, '/').replace(/=+$/, '');
+    if (s.length < 16 || !/^[A-Za-z0-9+/]+$/.test(s)) return null;
+    var mod = s.length % 4;
+    if (mod === 1) return null;
+    return mod ? s + '='.repeat(4 - mod) : s;
+  }
+
+  function xorWithKey(bytes, key) {
+    var out = new Uint8Array(bytes.length);
+    for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key.charCodeAt(i % key.length);
+    return out;
+  }
+
+  function decodeVantageShare(value) {
+    var raw = String(value == null ? '' : value).trim();
+    if (!raw) return null;
+    if (/^https?:/i.test(raw)) {
+      raw = extractSParam(raw);
+      if (!raw) return null;
+    } else {
+      raw = raw.replace(/^s\s*=\s*/i, '');
+      try { raw = decodeURIComponent(raw); } catch (e) { /* keep raw */ }
+    }
+    var b64 = looseBase64(raw);
+    if (!b64) return null;
+    var bytes = base64ToBytes(b64);
+    if (!bytes || bytes.length < 16) return null;
+    var text = bytesToUtf8(xorWithKey(bytes, VANTAGE_XOR_KEY));
+    if (!isPrintableText(text)) return null;
+    var obj;
+    try { obj = JSON.parse(text); } catch (e) { return null; }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+    var url = String(obj.u != null ? obj.u : (obj.url != null ? obj.url : '')).trim();
+    if (!/^https?:\/\//i.test(url)) return null;
+    var key = String(obj.k != null ? obj.k : (obj.key != null ? obj.key : ''));
+    var label = String(obj.l != null ? obj.l : (obj.label != null ? obj.label : ''));
+    var expiryMs = Number(obj.e != null ? obj.e : (obj.exp != null ? obj.exp : 0)) || 0;
+    return {
+      payload: JSON.stringify({
+        databaseURL: url,
+        apiKey: key,
+        label: label,
+        expiry: expiryMs > 0 ? expiryMs : 'Permanent'
+      }),
+      text: text,
+      url: url,
+      key: key,
+      label: label,
+      expiryMs: expiryMs
+    };
   }
 
   function firebaseUrlRegex() {
@@ -455,7 +517,9 @@
     if (apiKeys.length) {
       return { value: apiKeys[0], masked: maskSecret(apiKeys[0]), type: 'Firebase Web API key', source: 'pattern match' };
     }
-    var seg = segments.find(function (s) { return (s.kind === 'credential' || s.kind === 'apiKey') && s.value; });
+    var seg = segments.find(function (s) {
+      return (s.kind === 'credential' || s.kind === 'apiKey' || s.sensitive) && s.value;
+    });
     if (seg) {
       return {
         value: seg.value,
@@ -625,6 +689,17 @@
           notes: sNotes
         };
       }
+      // Not plain Base64 — try the VANTAGE XOR-obfuscated share payload.
+      var vantageS = decodeVantageShare(sVal);
+      if (vantageS) {
+        return {
+          payload: vantageS.payload,
+          sourceType: 'vantage-share',
+          encoding: 'XOR + Base64',
+          decodeCount: 1,
+          notes: notes.concat(['Decoded a VANTAGE share link (Base64 + XOR-encoded JSON).'])
+        };
+      }
       notes = notes.concat(['Found an s= value, but it did not decode as readable Base64.']);
     }
 
@@ -674,6 +749,16 @@
     }
 
     if (looksLikeBase64(token)) {
+      var vantageRaw = decodeVantageShare(token);
+      if (vantageRaw) {
+        return {
+          payload: vantageRaw.payload,
+          sourceType: 'vantage-share',
+          encoding: 'XOR + Base64',
+          decodeCount: 1,
+          notes: notes.concat(['Decoded a VANTAGE share value (Base64 + XOR-encoded JSON).'])
+        };
+      }
       var decodedRaw = decodeChain(token);
       if (decodedRaw.ok) {
         var rawNotes = notes.concat(['Decoded raw value using ' + decodedRaw.encoding + '.']);
@@ -718,7 +803,8 @@
     var encoding = options.encoding || 'plain';
     var notes = (options.notes || []).slice();
     var isDelimited = /\|\|/.test(text) || isPipeDelimitedPayload(text);
-    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload';
+    var decoded = decodeCount > 0 || sourceType === 'json' || sourceType === 'query' || sourceType === 'payload' || sourceType === 'pipe-payload' || sourceType === 'vantage-share';
+    var isVantagePermanent = sourceType === 'vantage-share' && /"expiry"\s*:\s*"Permanent"/i.test(text);
 
     var status;
     if (!text) status = 'INVALID';
@@ -735,6 +821,7 @@
     if (firebaseUrls.length) messages.push('Found ' + firebaseUrls.length + ' Firebase endpoint' + (firebaseUrls.length === 1 ? '' : 's') + '.');
     else messages.push('No Firebase endpoint was found in the decoded text.');
     if (expiresAt) messages.push('Expiry: ' + expiresAt.local + ' (' + expiresAt.relative + ').');
+    else if (isVantagePermanent) messages.push('This VANTAGE link is permanent (no expiry).');
     else messages.push('No expiry timestamp was detected.');
     if (credential) messages.push('A credential field was found and is masked by default.');
 
@@ -744,7 +831,7 @@
     if (firebaseUrls.length > 1) warnings.push('Multiple Firebase URLs were found; the first is shown as primary.');
     if (primaryUrl && !primaryUrl.isSecure) warnings.push('This endpoint uses HTTP instead of HTTPS.');
     if (expiresAt && expiresAt.expired) warnings.push('This link has expired.');
-    if (!expiresAt) warnings.push('This link has no detectable expiry field.');
+    if (!expiresAt && !isVantagePermanent) warnings.push('This link has no detectable expiry field.');
     if (sourceType === 'plain' && decodeCount === 0 && !isDelimited) warnings.push('Input was not recognized as Base64, a delimited payload, or a Firebase URL.');
     if (primaryUrl && primaryUrl.hasSensitiveQuery) warnings.push('Sensitive query parameters were removed from the displayed URL.');
 
@@ -804,6 +891,7 @@
     if (extractSParam(t)) return true;
     if (/^s=/i.test(t) && t.length > 8) return true;
     if (t.length >= 12 && looksLikeBase64(t)) {
+      if (decodeVantageShare(t)) return true;
       var d = decodeChain(t);
       if (d.ok) return true;
     }
@@ -926,6 +1014,7 @@
     toTimestampMs: toTimestampMs,
     splitPayloadSegments: splitPayloadSegments,
     isPipeDelimitedPayload: isPipeDelimitedPayload,
+    decodeVantageShare: decodeVantageShare,
     parsePayload: parsePayload,
     resolvePayload: resolvePayload,
     inspect: inspect,

@@ -12,7 +12,8 @@
   var SAMPLE_LINKS = [
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9hbWFuZ2FuZHUtODg2OTctZGVmYXVsdC1ydGRiLmZpcmViYXNlaW8uY29tfHx8Vnx8fDE3OTMxMDU1MTUwMTU=',
     'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9jYWxsbWUyLTY4NmM4LWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbXx8fEdnfHx8MTc5MzEwNTQ4MjY2NA==',
-    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw=='
+    'https://badgxarmy.netlify.app/?s=aHR0cHM6Ly9zYW1wbGUtcGlwZS1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb218S0VZMTIzNDU2fDE3OTMxMDU1MTUwMTV8ZGV2aWNlLTEyMw==',
+    'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw'
   ];
 
   var MAX_INPUT_CHARS = 1500000;

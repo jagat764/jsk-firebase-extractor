@@ -21,6 +21,18 @@ function b64(text) {
   return Buffer.from(text, 'utf-8').toString('base64');
 }
 
+// Build a VANTAGE share value: base64url(XOR(JSON {u,k,l,e})).
+function vantage(obj) {
+  var bytes = Buffer.from(JSON.stringify(obj), 'utf-8');
+  var out = Buffer.alloc(bytes.length);
+  var key = cli.VANTAGE_XOR_KEY;
+  for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ key.charCodeAt(i % key.length);
+  return out.toString('base64url');
+}
+
+var VANTAGE_URL = 'https://vantagepanel.netlify.app/?s=DUMbVltFDQQVHhZWWR4xNRtYAzFVBWNTFCpVAz5CRzpHByQWHz1DPwAkRhYoXxcVDgNWTUUOUltMJCAweBECJGY9EWJVYhUdbg5UEVkEJlYAMl0ddh14B2cPQzw';
+var VANTAGE_FB = 'https://nmpanagr-default-rtdb.firebaseio.com';
+
 function run(args) {
   return childProcess.spawnSync(process.execPath, [path.join(__dirname, '..', 'decode-s.js')].concat(args), {
     encoding: 'utf-8'
@@ -117,6 +129,60 @@ test('warns instead of failing when field 1 is not Firebase', function () {
   var r = cli.decodeS(b64('https://example.com|KEY'));
   assert.strictEqual(r.firebase_url, 'https://example.com/');
   assert.ok(r.warnings.join(' ').indexOf('Firebase') !== -1);
+});
+
+console.log('\nVANTAGE share links (Base64 + XOR JSON)');
+
+test('decodes the real VANTAGE share link', function () {
+  var r = cli.decodeS(VANTAGE_URL);
+  assert.strictEqual(r.error, undefined);
+  assert.strictEqual(r.format, 'vantage-xor');
+  assert.strictEqual(r.firebase_url, VANTAGE_FB + '/');
+  assert.strictEqual(r.connection.key, 'ALFINZO_PAP');
+  assert.strictEqual(r.connection.label, 'Connected');
+  assert.strictEqual(r.connection.permanent, true);
+  assert.deepStrictEqual(r.trailing, ['ALFINZO_PAP', 'Connected', 'permanent']);
+});
+
+test('decodes a bare VANTAGE value with no padding', function () {
+  var s = VANTAGE_URL.split('?s=')[1];
+  var r = cli.decodeS(s);
+  assert.strictEqual(r.firebase_url, VANTAGE_FB + '/');
+  assert.strictEqual(r.raw, '{"u":"' + VANTAGE_FB + '","k":"ALFINZO_PAP","l":"Connected","e":0}');
+});
+
+test('reads url/label/expiry from the JSON payload', function () {
+  var s = vantage({ u: BASE, k: 'KEY', l: 'Temp', e: 1800000000000 });
+  var r = cli.decodeS('https://x.netlify.app/?s=' + s);
+  assert.strictEqual(r.firebase_url, BASE + '/');
+  assert.strictEqual(r.connection.label, 'Temp');
+  assert.strictEqual(r.connection.expiry, 1800000000000);
+  assert.strictEqual(r.connection.permanent, false);
+});
+
+test('warns when a VANTAGE link has already expired', function () {
+  var r = cli.decodeS(vantage({ u: BASE, k: 'K', l: '', e: 1793105515015 }));
+  assert.ok(r.warnings.join(' ').indexOf('in the past') !== -1);
+});
+
+test('does not treat random Base64 as a VANTAGE link', function () {
+  var r = cli.decodeS(b64('hello world, just some text'));
+  assert.strictEqual(r.format, 'base64');
+  assert.strictEqual(r.connection, undefined);
+});
+
+test('CLI prints the VANTAGE URL for panels.txt', function () {
+  var out = run([VANTAGE_URL, '--quiet']);
+  assert.strictEqual(out.status, 0);
+  assert.strictEqual(out.stdout.trim(), VANTAGE_FB + '/');
+});
+
+test('CLI --json exposes the connection object', function () {
+  var out = run([VANTAGE_URL, '--json']);
+  var parsed = JSON.parse(out.stdout);
+  assert.strictEqual(parsed.format, 'vantage-xor');
+  assert.strictEqual(parsed.connection.url, VANTAGE_FB);
+  assert.strictEqual(parsed.connection.key, 'ALFINZO_PAP');
 });
 
 console.log('\nextractSFromUrl()');
@@ -234,6 +300,68 @@ test('bulk mode recognises single-pipe lines', function () {
 
 test('exports the pipe detector', function () {
   assert.strictEqual(typeof D.isPipeDelimitedPayload, 'function');
+});
+
+test('classifies a VANTAGE share link as vantage-share', function () {
+  var r = D.inspect(VANTAGE_URL, { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.sourceType, 'vantage-share');
+  assert.strictEqual(r.sourceTypeLabel, 'VANTAGE share link');
+  assert.strictEqual(r.encoding, 'XOR + Base64');
+  assert.strictEqual(r.primaryUrl.url, VANTAGE_FB);
+  assert.strictEqual(r.projectId, 'nmpanagr');
+});
+
+test('masks the VANTAGE credential and keeps the label', function () {
+  var r = D.inspect(VANTAGE_URL, { now: NOW });
+  assert.ok(r.credential);
+  assert.strictEqual(r.credential.value, 'ALFINZO_PAP');
+  assert.notStrictEqual(r.credential.masked, 'ALFINZO_PAP');
+  var label = r.segments.find(function (s) { return s.label === 'Label'; });
+  assert.ok(label);
+  assert.strictEqual(label.value, 'Connected');
+});
+
+test('reports a permanent VANTAGE link without an expiry warning', function () {
+  var r = D.inspect(VANTAGE_URL, { now: NOW });
+  assert.strictEqual(r.expiresAt, null);
+  assert.strictEqual(r.warnings.length, 0);
+  assert.ok(r.messages.join(' ').indexOf('permanent') !== -1);
+});
+
+test('detects an expired VANTAGE temporary link', function () {
+  var s = vantage({ u: BASE, k: 'K', l: 'Temp', e: 1793105515015 });
+  var r = D.inspect('https://x.netlify.app/?s=' + s, { now: NOW });
+  assert.strictEqual(r.status, 'EXPIRED');
+  assert.strictEqual(r.expiresAt.raw, '1793105515015');
+});
+
+test('detects a still-valid VANTAGE temporary link', function () {
+  var s = vantage({ u: BASE, k: 'K', l: 'Temp', e: 1800000000000 });
+  var r = D.inspect('https://x.netlify.app/?s=' + s, { now: NOW });
+  assert.strictEqual(r.status, 'VALID');
+  assert.strictEqual(r.expiresAt.raw, '1800000000000');
+});
+
+test('decodes a bare VANTAGE value in the core', function () {
+  var s = VANTAGE_URL.split('?s=')[1];
+  var r = D.inspect(s, { now: NOW });
+  assert.strictEqual(r.sourceType, 'vantage-share');
+  assert.strictEqual(r.primaryUrl.url, VANTAGE_FB);
+});
+
+test('bulk mode recognises VANTAGE links', function () {
+  var input = [VANTAGE_URL, BASE + '|K1|1793105515015', 'not a link'].join('\n');
+  var out = D.processBulk(input, { now: NOW });
+  assert.strictEqual(out.stats.total, 3);
+  assert.strictEqual(out.results[0].sourceType, 'vantage-share');
+  assert.strictEqual(out.results[1].sourceType, 'pipe-payload');
+  assert.strictEqual(out.results[2].status, 'INVALID');
+});
+
+test('exports the VANTAGE decoder', function () {
+  assert.strictEqual(typeof D.decodeVantageShare, 'function');
+  assert.strictEqual(D.decodeVantageShare('hello'), null);
 });
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed\n');

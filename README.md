@@ -20,6 +20,17 @@ Fields can be separated by a single `|` or by the older triple `|||` separator.
 Both forms are recognised, and empty fields (which `|||` produces) are skipped
 while the remaining fields keep their original position and labels.
 
+Some apps wrap the same details as Base64 over XOR-encoded JSON instead. The
+**VANTAGE** share links, for example, decode to:
+
+```json
+{"u":"https://project-default-rtdb.firebaseio.com","k":"CREDENTIAL","l":"Connected","e":0}
+```
+
+`u` is the database URL, `k` the credential, `l` a label and `e` an expiry in
+milliseconds (`0` means the link is permanent). LinkScope detects this layout
+automatically and reports it as a **VANTAGE share link**.
+
 The tool also accepts:
 
 - full share URLs such as `https://example.net/?s=BASE64`
@@ -27,6 +38,7 @@ The tool also accepts:
 - raw Base64 (standard **and** URL-safe `-` / `_`)
 - double Base64 encoding
 - already-decoded `|` (single-pipe) and `|||` (triple-pipe) payloads
+- VANTAGE share links — Base64 over XOR-encoded JSON (`u` / `k` / `l` / `e`)
 - direct Firebase URLs, with or without `https://`
 - JSON objects and URL-encoded query-string payloads
 - `.txt`, `.csv`, `.json`, `.log` file uploads and drag-and-drop
@@ -68,9 +80,10 @@ node tests/decode-s.test.js   # runs the decoder test suite
 
 ## Command-line decoder (`decode-s.js`)
 
-`decode-s.js` is a dependency-free Node script for the single-pipe variant. It
-accepts a full share URL, a bare `s=` value, an `s=...` assignment, or `-` to
-read one value per line from stdin, and prints the Firebase URL to paste into
+`decode-s.js` is a dependency-free Node script for `?s=` links — both the
+single-pipe payloads and VANTAGE share links (Base64 + XOR JSON). It accepts a
+full share URL, a bare `s=` value, an `s=...` assignment, or `-` to read one
+value per line from stdin, and prints the Firebase URL to paste into
 `panels.txt`.
 
 ```bash
@@ -98,9 +111,15 @@ trailing   : KEY | 1793105515015 | device-123
 
 It pads missing Base64 padding, switches to the URL-safe alphabet
 (`-` / `_`) when needed, ignores empty `|||` fields, and exits non-zero
-(`1` usage, `3` decode failure) when nothing usable was found. In the browser
-and bulk modes the same format is handled by `decoder.js`, which reports it as
-**Pipe-delimited payload**.
+(`1` usage, `3` decode failure) when nothing usable was found. VANTAGE links also
+report their credential, label and expiry (`permanent` when `e` is `0`):
+
+```bash
+node decode-s.js "https://vantagepanel.netlify.app/?s=XXXX" --json
+```
+
+In the browser and bulk modes the same formats are handled by `decoder.js`,
+which reports them as **Pipe-delimited payload** or **VANTAGE share link**.
 
 ---
 

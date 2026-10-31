@@ -3,8 +3,9 @@
  * LinkScope — decode-s CLI (single-pipe payloads)
  * 100% local text parsing. No fetch(), no network calls, no telemetry.
  *
- * Decodes a ?s= Base64 parameter and turns a payload shaped like
+ * Decodes a ?s= Base64 parameter and turns either payload shape
  *   FIREBASE_URL|CREDENTIAL|EXPIRY_MS|OPTIONAL_DEVICE_ID
+ *   base64url( XOR( {"u":URL,"k":KEY,"l":LABEL,"e":EXPIRY_MS} ) )   [VANTAGE]
  * into a clean Firebase URL ready to paste into panels.txt.
  *
  * Usage:
@@ -25,6 +26,10 @@ var USAGE = [
   '    - an s= assignment s=XXXX',
   '    - "-" to read one value per line from stdin',
   '',
+  '  decodes:',
+  '    - Base64 pipe payloads      URL|KEY|EXPIRY|DEVICE (or |||)',
+  '    - VANTAGE share links       base64url(XOR(JSON {u,k,l,e}))',
+  '',
   '  flags:',
   '    --json    print the decoded result as JSON',
   '    --quiet   print only the Firebase URL (good for panels.txt)'
@@ -32,6 +37,10 @@ var USAGE = [
 
 var FIREBASE_OR_HTTP_RE = /firebase|https?:\/\//i;
 var PRINTABLE_RE = /^[\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]*$/;
+
+// VANTAGE share links wrap the payload as base64url(XOR(JSON{u,k,l,e})).
+// The fixed key is the app's public client-side fallback key.
+var VANTAGE_XOR_KEY = 'vantagepanelv1_Xk9mP2wN7qL4vR6jH3cF8yT1ZbE5sA09';
 
 function isPrintable(text) {
   return typeof text === 'string' && text.length > 0 && PRINTABLE_RE.test(text);
@@ -59,10 +68,45 @@ function decodeBase64Utf8(value) {
     var buffer = Buffer.from(padded, 'base64');
     if (!buffer.length) return { error: 'b64_decode_failed', detail: 'decoded to zero bytes' };
     var original = String(value == null ? '' : value).replace(/\s/g, '');
-    return { text: buffer.toString('utf-8'), padding: Math.max(0, padded.length - original.length) };
+    return {
+      text: buffer.toString('utf-8'),
+      bytes: new Uint8Array(buffer),
+      padding: Math.max(0, padded.length - original.length)
+    };
   } catch (e) {
     return { error: 'b64_decode_failed', detail: String(e) };
   }
+}
+
+/**
+ * Try the VANTAGE share format: base64url(XOR(JSON {u,k,l,e})).
+ * @param {Uint8Array} bytes Base64-decoded bytes
+ * @returns {{url:string,key:string,label:string,expiry:number,text:string}|null}
+ */
+function decodeVantageBytes(bytes) {
+  if (!bytes || bytes.length < 16) return null;
+  var out = new Uint8Array(bytes.length);
+  for (var i = 0; i < bytes.length; i++) out[i] = bytes[i] ^ VANTAGE_XOR_KEY.charCodeAt(i % VANTAGE_XOR_KEY.length);
+  var text;
+  try {
+    text = Buffer.from(out).toString('utf-8');
+  } catch (e) {
+    return null;
+  }
+  if (!isPrintable(text)) return null;
+  var obj;
+  try {
+    obj = JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+  var url = String(obj.u != null ? obj.u : (obj.url != null ? obj.url : '')).trim();
+  if (!/^https?:\/\//i.test(url)) return null;
+  var key = String(obj.k != null ? obj.k : (obj.key != null ? obj.key : ''));
+  var label = String(obj.l != null ? obj.l : (obj.label != null ? obj.label : ''));
+  var expiry = Number(obj.e != null ? obj.e : (obj.exp != null ? obj.exp : 0)) || 0;
+  return { url: url, key: key, label: label, expiry: expiry, text: text };
 }
 
 /**
@@ -121,6 +165,32 @@ function decodeS(sParam) {
   var padding = decoded.padding || 0;
 
   if (!isPrintable(raw)) {
+    // Not readable text — maybe a VANTAGE share link (Base64 + XOR JSON).
+    var vantage = decodeVantageBytes(decoded.bytes);
+    if (vantage) {
+      var fbV = vantage.url;
+      if (!fbV.endsWith('/')) fbV += '/';
+      var vWarnings = [];
+      if (!vantage.key) vWarnings.push('payload has no credential field');
+      if (vantage.expiry && vantage.expiry <= Date.now()) vWarnings.push('link expiry is in the past');
+      return {
+        input_s: s,
+        raw: vantage.text,
+        firebase_url: fbV,
+        trailing: [vantage.key, vantage.label, vantage.expiry ? String(vantage.expiry) : 'permanent'].filter(function (v) { return !!v; }),
+        connection: {
+          url: vantage.url,
+          key: vantage.key,
+          label: vantage.label,
+          expiry: vantage.expiry,
+          permanent: !vantage.expiry
+        },
+        format: 'vantage-xor',
+        url_safe: usedUrlSafe,
+        padding: padding,
+        warnings: vWarnings
+      };
+    }
     return { error: 'not_text', detail: 'Base64 decoded to binary data, not a readable payload' };
   }
 
@@ -142,6 +212,7 @@ function decodeS(sParam) {
     raw: raw,
     firebase_url: fb,
     trailing: trailing,
+    format: 'base64',
     url_safe: usedUrlSafe,
     padding: padding,
     warnings: warnings
@@ -197,9 +268,16 @@ function describe(result, input) {
   var out = [];
   out.push(line);
   out.push('input      : ' + input);
+  if (result.format === 'vantage-xor') out.push('format     : VANTAGE share link (Base64 + XOR JSON)');
   out.push('raw        : ' + result.raw);
   out.push('firebase   : ' + result.firebase_url);
   if (result.trailing.length) out.push('trailing   : ' + result.trailing.join(' | '));
+  if (result.connection) {
+    if (result.connection.label) out.push('label      : ' + result.connection.label);
+    out.push('expiry     : ' + (result.connection.permanent
+      ? 'permanent (0)'
+      : new Date(result.connection.expiry).toISOString()));
+  }
   if (result.url_safe) out.push('encoding   : URL-safe Base64 (- / _)');
   if (result.padding) out.push('padding    : ' + result.padding + ' "=" added');
   result.warnings.forEach(function (w) { out.push('[!] ' + w); });
@@ -273,8 +351,10 @@ if (require.main === module) {
 module.exports = {
   decodeS: decodeS,
   extractSFromUrl: extractSFromUrl,
+  decodeVantageBytes: decodeVantageBytes,
   padBase64: padBase64,
   decodeBase64Utf8: decodeBase64Utf8,
   main: main,
-  USAGE: USAGE
+  USAGE: USAGE,
+  VANTAGE_XOR_KEY: VANTAGE_XOR_KEY
 };
